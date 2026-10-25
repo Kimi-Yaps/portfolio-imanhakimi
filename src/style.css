@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+@font-face {
+  font-family: 'BebasNeue';
+  src: url('/Fonts/BebasNeue-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/Fonts/Zodiak-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg-color: #dfdfdf;
+  --bg-panel: rgba(223, 223, 223, 0.98);
+  --ink-color: #000000;
+  --ink-dim: #333333;
+  --tape-red: #ed0707;
+  --tape-black: #000000;
+  --border-color: #000000;
+
+  --font-pixel: 'Silkscreen', monospace;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+  --font-bebas: 'BebasNeue', sans-serif;
+  --font-display: var(--font-pixel);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-color);
+  color: var(--ink-color);
+  font-family: var(--font-pixel);
+  overflow-x: hidden;
+  -webkit-font-smoothing: none;
+}
+
+#app {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-color);
+}
+
+/* Flat Red Tape Highlight (No Neobrutalism Shadows) */
+.tape-red {
+  background-color: var(--tape-red);
+  color: #000000;
+  padding: 3px 8px;
+  display: inline-block;
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  margin-bottom: 5px;
+}
+
+/* Flat Black Tape Highlight */
+.tape-black {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 3px 8px;
+  display: inline-block;
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  margin-bottom: 5px;
+}
+
+/* Flat Bracket Button */
+.bracket-btn {
+  font-family: var(--font-pixel);
+  font-size: 0.88rem;
+  background: transparent;
+  color: #000000;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.1s ease;
+}
+
+.bracket-btn:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.bracket-btn.bordered {
+  border: 1px solid #000000;
+}
+
+/* Arrow Navigation Link */
+.nav-arrow-link {
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  color: #000000;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.nav-arrow-link:hover,
+.nav-arrow-link.active {
+  background-color: var(--tape-red);
+  color: #000000;
+}
+
+/* Custom Pixel Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-left: 1px solid #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tape-red);
+}
