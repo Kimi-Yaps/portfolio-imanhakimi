@@ -48,6 +48,29 @@ const projects = [
         stack: ['Python', 'LLaMA 3', 'AWS SageMaker', 'PyTorch', 'DataPrep'],
     },
 ]
+const techIconMap: Record<string, string> = {
+    'React': '/icons/react.svg',
+    'TypeScript': '/icons/typescript.svg',
+    'HTML5': '/icons/html5.svg',
+    'CSS3': '/icons/css3.svg',
+    'PostgreSQL': '/icons/postgresql.svg',
+    'Supabase': '/icons/supabase.svg',
+    'ASP.NET Core': '/icons/dotnet.svg',
+    'MySQL': '/icons/mysql.svg',
+    'Docker': '/icons/docker.svg',
+    'ClamAV': '/icons/shield.svg',
+    'jQuery': '/icons/jquery.svg',
+    'Bootstrap': '/icons/bootstrap.svg',
+    'Python': '/icons/python.svg',
+    'LLaMA 3': '/icons/meta.svg',
+    'AWS SageMaker': '/icons/amazonaws.svg',
+    'PyTorch': '/icons/pytorch.svg',
+    'DataPrep': '/icons/dataprep.svg',
+}
+
+const getTechIcon = (name: string): string => {
+    return techIconMap[name] || '/icons/dataprep.svg'
+}
 </script>
 
 <template>
@@ -91,7 +114,10 @@ const projects = [
                     <div class="stack-row">
                         <span class="stack-label">STACK:</span>
                         <div class="stack-tags">
-                            <span v-for="t in p.stack" :key="t" class="tech-tag">{{ t }}</span>
+                            <span v-for="t in p.stack" :key="t" class="tech-tag">
+                                <img :src="getTechIcon(t)" :alt="t" class="tech-icon" />
+                                {{ t }}
+                            </span>
                         </div>
                     </div>
                 </article>
@@ -256,6 +282,9 @@ const projects = [
 }
 
 .tech-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.8rem;
     font-weight: bold;
     background-color: #ffffff;
@@ -264,12 +293,27 @@ const projects = [
     box-shadow: 2px 2px 0px rgba(20, 20, 20, 0.3);
 }
 
+.tech-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    filter: brightness(0);
+    flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
+    .projects-wrapper {
+        padding: 1.5em 1em 4em;
+    }
     .page-title {
-        font-size: 2.6rem;
+        font-size: clamp(1.8rem, 6vw, 2.6rem);
     }
     .project-name {
-        font-size: 1.8rem;
+        font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+    }
+    .project-detail-card {
+        padding: 1.2em;
+        box-shadow: 4px 4px 0px var(--ink-color);
     }
 }
 </style>

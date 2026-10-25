@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import Navbar from '../components/navbar.vue'
 import modelDisplay from '../components/modelDisplay.vue'
 import { usePixelTransition } from '../composables/usePixelTransition'
@@ -32,6 +32,90 @@ const copyToClipboard = (text: string, field: string) => {
         copiedField.value = null
     }, 2000)
 }
+
+// Tech Stack Icon Mapping (Clean, Open-Source Monochrome Black SVGs)
+const techIconMap: Record<string, string> = {
+    // Frontend
+    'React': '/icons/react.svg',
+    'React JS': '/icons/react.svg',
+    'TypeScript': '/icons/typescript.svg',
+    'JavaScript': '/icons/javascript.svg',
+    'HTML5': '/icons/html5.svg',
+    'HTML/CSS': '/icons/html5.svg',
+    'CSS3': '/icons/css3.svg',
+    'Vue.js': '/icons/vue.svg',
+    'TresJS 3D': '/icons/threejs.svg',
+    'WordPress': '/icons/wordpress.svg',
+    'jQuery': '/icons/jquery.svg',
+    'Bootstrap': '/icons/bootstrap.svg',
+
+    // Backend & Databases
+    'PostgreSQL': '/icons/postgresql.svg',
+    'Supabase': '/icons/supabase.svg',
+    'MySQL': '/icons/mysql.svg',
+    'ASP.NET Core': '/icons/dotnet.svg',
+    'C#': '/icons/csharp.svg',
+    'Python': '/icons/python.svg',
+    'PHP': '/icons/php.svg',
+    'Firebase': '/icons/firebase.svg',
+    'Google Apps Script': '/icons/google.svg',
+    'ClamAV': '/icons/shield.svg',
+
+    // Cloud, AI & Data Tools
+    'GCP Cloud Run': '/icons/googlecloud.svg',
+    'AWS SageMaker': '/icons/amazonaws.svg',
+    'AWS SageMaker AI': '/icons/amazonaws.svg',
+    'Docker': '/icons/docker.svg',
+    'Kubernetes': '/icons/kubernetes.svg',
+    'GitHub / GitLab': '/icons/github.svg',
+    'Jenkins': '/icons/jenkins.svg',
+    'Grafana': '/icons/grafana.svg',
+    'PyTorch': '/icons/pytorch.svg',
+    'LLaMA 3': '/icons/meta.svg',
+    'Google Sheets': '/icons/googlesheets.svg',
+    'Google Looker Studio': '/icons/looker.svg',
+    'Power BI': '/icons/powerbi.svg',
+    'DataPrep': '/icons/dataprep.svg',
+    'Data Analytics': '/icons/analytics.svg',
+}
+
+const getTechIcon = (name: string): string => {
+    return techIconMap[name] || '/icons/dataprep.svg'
+}
+
+// Skills Arrays
+const frontendSkills = [
+    'HTML5',
+    'CSS3',
+    'JavaScript',
+    'TypeScript',
+    'React JS',
+    'Vue.js',
+    'TresJS 3D',
+    'WordPress',
+]
+
+const backendSkills = [
+    'PostgreSQL',
+    'Supabase',
+    'MySQL',
+    'ASP.NET Core',
+    'C#',
+    'Python',
+    'PHP',
+    'Firebase',
+    'Google Apps Script',
+]
+
+const cloudSkills = [
+    'GCP Cloud Run',
+    'AWS SageMaker AI',
+    'Docker',
+    'Kubernetes',
+    'GitHub / GitLab',
+    'Jenkins',
+    'Grafana',
+]
 
 // Projects from Resume
 const projects = [
@@ -93,15 +177,6 @@ const openProjectModal = (projId: string) => {
     selectedProject.value = projId
     openSection('projects')
 }
-
-// Model tab states matching isladjan.com
-const currentModelTab = ref('MODEL ONE')
-const selectModelTab = (tab: string) => {
-    currentModelTab.value = tab
-    if (tab === 'MODEL ONE') openProjectModal('siswa-rent')
-    if (tab === 'MODEL TWO') openProjectModal('malware-detection')
-    if (tab === 'MODEL THREE') openProjectModal('polycc-llm')
-}
 </script>
 
 <template>
@@ -109,8 +184,8 @@ const selectModelTab = (tab: string) => {
         <!-- 3D Dithered Model Canvas centered in background -->
         <modelDisplay />
 
-        <!-- Top Navigation matching [ ISLADJAN.COM ] & [ MENU ] -->
-        <Navbar @open-section="openSection" />
+        <!-- Top Navigation (Streamlined: Logo & Hire Me only) -->
+        <Navbar />
 
         <!-- Main HUD Overlay -->
         <div class="hud-container">
@@ -149,31 +224,6 @@ const selectModelTab = (tab: string) => {
                 </button>
             </div>
 
-            <!-- Bottom-Right: Model / Project Selector Tabs -->
-            <div class="right-model-tabs">
-                <button
-                    class="tab-box"
-                    :class="{ active: currentModelTab === 'MODEL ONE' }"
-                    @click="selectModelTab('MODEL ONE')"
-                >
-                    MODEL ONE
-                </button>
-                <button
-                    class="tab-box"
-                    :class="{ active: currentModelTab === 'MODEL TWO' }"
-                    @click="selectModelTab('MODEL TWO')"
-                >
-                    MODEL TWO
-                </button>
-                <button
-                    class="tab-box"
-                    :class="{ active: currentModelTab === 'MODEL THREE' }"
-                    @click="selectModelTab('MODEL THREE')"
-                >
-                    MODEL THREE
-                </button>
-            </div>
-
             <!-- Far-Right: Vertical Sidebar Rail -->
             <aside class="right-rail">
                 <a
@@ -200,7 +250,7 @@ const selectModelTab = (tab: string) => {
                 </button>
             </aside>
 
-            <!-- Bottom Bar matching isladjan.com -->
+            <!-- Bottom Bar -->
             <footer class="bottom-hud-bar">
                 <div class="bottom-left-index">
                     <span class="boxed-num">01</span>
@@ -208,10 +258,10 @@ const selectModelTab = (tab: string) => {
                 </div>
 
                 <div class="bottom-center-nav">
-                    <button class="arrow-btn" @click="openSection('about')">
+                    <button class="arrow-btn" aria-label="Previous section" @click="openSection('about')">
                         ⇦
                     </button>
-                    <button class="arrow-btn" @click="openSection('projects')">
+                    <button class="arrow-btn" aria-label="Next section" @click="openSection('projects')">
                         ⇨
                     </button>
                     <span class="copyright-text">
@@ -220,7 +270,7 @@ const selectModelTab = (tab: string) => {
                 </div>
 
                 <div class="bottom-right-extra">
-                    <span class="boxed-alert" @click="openSection('contact')">!</span>
+                    <span class="boxed-alert" title="Quick Contact" @click="openSection('contact')">!</span>
                 </div>
             </footer>
         </div>
@@ -244,7 +294,7 @@ const selectModelTab = (tab: string) => {
                         <!-- ================= SECTION: ABOUT_ME ================= -->
                         <div v-if="activeSection === 'about'" class="section-content">
                             <div class="about-grid">
-                                <!-- Profile Picture Frame loaded from /ImanPFP.png -->
+                                <!-- Profile Picture Card -->
                                 <div class="pfp-terminal-card">
                                     <div class="pfp-border">
                                         <img
@@ -323,6 +373,7 @@ const selectModelTab = (tab: string) => {
 
                                     <div class="card-stack-row">
                                         <span v-for="t in p.stack" :key="t" class="stack-badge">
+                                            <img :src="getTechIcon(t)" :alt="t" class="tech-icon" />
                                             [{{ t }}]
                                         </span>
                                     </div>
@@ -369,42 +420,30 @@ const selectModelTab = (tab: string) => {
                                 <div class="skill-category">
                                     <div class="tape-red">FRONTEND DEVELOPMENT</div>
                                     <div class="tag-cloud">
-                                        <span>HTML5</span>
-                                        <span>CSS3</span>
-                                        <span>JavaScript</span>
-                                        <span>TypeScript</span>
-                                        <span>React JS</span>
-                                        <span>Vue.js</span>
-                                        <span>TresJS 3D</span>
-                                        <span>WordPress</span>
+                                        <span v-for="skill in frontendSkills" :key="skill">
+                                            <img :src="getTechIcon(skill)" :alt="skill" class="tech-icon" />
+                                            {{ skill }}
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="skill-category">
                                     <div class="tape-black">BACKEND & DATABASES</div>
                                     <div class="tag-cloud">
-                                        <span>PostgreSQL</span>
-                                        <span>Supabase</span>
-                                        <span>MySQL</span>
-                                        <span>ASP.NET Core</span>
-                                        <span>C#</span>
-                                        <span>Python</span>
-                                        <span>PHP</span>
-                                        <span>Firebase</span>
-                                        <span>Google Apps Script</span>
+                                        <span v-for="skill in backendSkills" :key="skill">
+                                            <img :src="getTechIcon(skill)" :alt="skill" class="tech-icon" />
+                                            {{ skill }}
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="skill-category">
                                     <div class="tape-red">CLOUD & DEVOPS</div>
                                     <div class="tag-cloud">
-                                        <span>GCP Cloud Run</span>
-                                        <span>AWS SageMaker AI</span>
-                                        <span>Docker</span>
-                                        <span>Kubernetes</span>
-                                        <span>GitHub / GitLab</span>
-                                        <span>Jenkins</span>
-                                        <span>Grafana</span>
+                                        <span v-for="skill in cloudSkills" :key="skill">
+                                            <img :src="getTechIcon(skill)" :alt="skill" class="tech-icon" />
+                                            {{ skill }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -467,7 +506,8 @@ const selectModelTab = (tab: string) => {
 .screen-layout {
     position: relative;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     overflow: hidden;
     background-color: var(--bg-color);
 }
@@ -481,13 +521,14 @@ const selectModelTab = (tab: string) => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 68px 36px 20px 36px;
+    padding: clamp(56px, 7vh, 68px) clamp(14px, 3.2vw, 36px) clamp(10px, 1.8vh, 20px) clamp(14px, 3.2vw, 36px);
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* Allow interactive elements inside HUD to be clicked */
 .tape-statement-block,
 .left-arrow-menu,
-.right-model-tabs,
 .right-rail,
 .bottom-hud-bar,
 button,
@@ -497,24 +538,37 @@ a {
 
 /* ================= TOP-LEFT TAPE STATEMENT ================= */
 .tape-statement-block {
-    max-width: 580px;
+    max-width: min(580px, 100%);
+    box-sizing: border-box;
 }
 
 .tape-statement {
-    font-size: 1.6rem;
+    /* Fluid responsive font size that shrinks properly on small screens */
+    font-size: clamp(0.72rem, 3.4vw, 1.55rem);
     font-weight: 700;
     line-height: 1.35;
-    letter-spacing: 0.05em;
-    margin-bottom: 14px;
+    letter-spacing: 0.04em;
+    margin-bottom: clamp(6px, 1.2vh, 14px);
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.tape-statement span {
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: clamp(2px, 0.8vw, 4px) clamp(4px, 1.2vw, 8px);
+    margin-bottom: clamp(2px, 0.5vh, 4px);
 }
 
 .identity-subtext {
     font-family: var(--font-pixel);
-    font-size: 0.85rem;
+    font-size: clamp(0.68rem, 2.4vw, 0.85rem);
     display: flex;
     flex-direction: column;
     gap: 4px;
-    margin-top: 6px;
+    margin-top: 4px;
+    word-break: break-word;
 }
 
 .id-name {
@@ -524,61 +578,34 @@ a {
     display: inline-block;
     padding: 2px 6px;
     width: fit-content;
+    max-width: 100%;
 }
 
 .id-role {
     color: #333333;
-    font-size: 0.78rem;
+    font-size: clamp(0.62rem, 2.2vw, 0.78rem);
+    word-break: break-word;
 }
 
 /* ================= BOTTOM-LEFT ARROW MENU ================= */
 .left-arrow-menu {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 50px;
+    gap: clamp(4px, 1vh, 8px);
+    margin-bottom: clamp(8px, 4vh, 45px);
 }
 
-/* ================= BOTTOM-RIGHT MODEL TABS ================= */
-.right-model-tabs {
-    position: absolute;
-    right: 54px;
-    bottom: 90px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: flex-end;
-}
-
-.tab-box {
-    font-family: var(--font-pixel);
-    font-size: 0.85rem;
-    font-weight: 700;
-    background-color: var(--bg-color);
-    color: #000000;
-    border: 1px solid #000000;
-    padding: 5px 16px;
-    cursor: pointer;
-    min-width: 140px;
-    text-align: center;
-    transition: all 0.1s ease;
-}
-
-.tab-box:hover {
-    background-color: var(--tape-red);
-    color: #000000;
-}
-
-.tab-box.active {
-    background-color: #000000;
-    color: #ffffff;
+.left-arrow-menu .nav-arrow-link {
+    font-size: clamp(0.72rem, 2.8vw, 0.98rem);
+    padding: 3px 6px;
+    width: fit-content;
 }
 
 /* ================= FAR-RIGHT VERTICAL RAIL ================= */
 .right-rail {
     position: absolute;
     right: 0;
-    top: 50px;
+    top: 45px;
     bottom: 0;
     width: 38px;
     border-left: 1px solid var(--border-color);
@@ -587,7 +614,8 @@ a {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 0;
+    padding: 14px 0;
+    z-index: 15;
 }
 
 .feedback-tab {
@@ -652,42 +680,46 @@ a {
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid var(--border-color);
-    padding-top: 10px;
+    padding-top: clamp(6px, 1.2vh, 10px);
     margin-right: 38px;
+    gap: 8px;
 }
 
 .bottom-left-index {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: clamp(4px, 1vw, 8px);
+    flex-shrink: 0;
 }
 
 .boxed-num {
     border: 1px solid #000000;
-    padding: 4px 8px;
-    font-size: 1.4rem;
+    padding: 2px clamp(5px, 1vw, 8px);
+    font-size: clamp(0.95rem, 3.2vw, 1.35rem);
     font-weight: 700;
     background-color: var(--bg-color);
 }
 
 .index-label {
-    font-size: 1.1rem;
+    font-size: clamp(0.78rem, 2.5vw, 1.05rem);
     font-weight: 700;
 }
 
 .bottom-center-nav {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: clamp(6px, 1.4vw, 12px);
+    overflow: hidden;
 }
 
 .arrow-btn {
-    font-size: 1.3rem;
+    font-size: clamp(0.95rem, 3vw, 1.25rem);
     background: transparent;
     border: 1px solid #000000;
-    padding: 2px 10px;
+    padding: 1px clamp(6px, 1.2vw, 10px);
     cursor: pointer;
     transition: all 0.1s ease;
+    flex-shrink: 0;
 }
 
 .arrow-btn:hover {
@@ -695,17 +727,26 @@ a {
 }
 
 .copyright-text {
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    font-size: clamp(0.55rem, 1.8vw, 0.75rem);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(360px, 46vw);
+}
+
+.bottom-right-extra {
+    flex-shrink: 0;
 }
 
 .boxed-alert {
     border: 1px solid #000000;
-    padding: 3px 8px;
+    padding: 2px clamp(6px, 1.2vw, 8px);
     background-color: #000000;
     color: #ffffff;
     font-weight: 700;
     cursor: pointer;
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
 }
 
 .boxed-alert:hover {
@@ -722,65 +763,89 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 30px;
+    padding: clamp(6px, 2.5vw, 24px);
+    overscroll-behavior: contain;
 }
 
 .terminal-window {
     width: 100%;
     max-width: 1100px;
-    max-height: 88vh;
+    max-height: 94dvh;
     background-color: var(--bg-color);
     border: 2px solid #000000;
     display: flex;
     flex-direction: column;
+    box-shadow: 4px 4px 0 #000000;
+    overflow: hidden;
 }
 
 .terminal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 16px;
+    padding: clamp(8px, 1.8vw, 12px) clamp(10px, 2.2vw, 18px);
     border-bottom: 2px solid #000000;
     background-color: var(--bg-color);
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .terminal-title {
-    font-size: 1rem;
+    font-size: clamp(0.72rem, 2.8vw, 1rem);
+    word-break: break-word;
+}
+
+.terminal-title .tape-red {
+    padding: 2px clamp(4px, 1.2vw, 8px);
+    margin-bottom: 0;
 }
 
 .close-btn {
     font-weight: 700;
+    font-size: clamp(0.72rem, 2.6vw, 0.88rem);
+    padding: 4px clamp(6px, 1.5vw, 10px);
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .terminal-body {
-    padding: 24px;
+    padding: clamp(10px, 2.8vw, 24px);
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .panel-heading {
-    font-size: 1.25rem;
-    margin: 0 0 16px 0;
+    font-size: clamp(0.95rem, 3.2vw, 1.25rem);
+    margin: 0 0 clamp(10px, 2vh, 16px) 0;
     border-bottom: 1px solid #000000;
     padding-bottom: 6px;
+    word-break: break-word;
 }
 
-/* About Layout */
+/* ================= SECTION: ABOUT LAYOUT ================= */
 .about-grid {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 30px;
+    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+    gap: clamp(14px, 3vw, 28px);
 }
 
 .pfp-terminal-card {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    max-width: 100%;
 }
 
 .pfp-border {
     border: 2px solid #000000;
     background-color: #ffffff;
-    padding: 6px;
+    padding: 5px;
+    width: 100%;
+    max-width: 220px;
 }
 
 .pfp-img {
@@ -792,62 +857,75 @@ a {
     filter: contrast(1.05);
 }
 
+.pfp-status .tape-black {
+    font-size: clamp(0.68rem, 2.2vw, 0.78rem);
+    padding: 2px 6px;
+}
+
 .pfp-meta {
-    font-size: 0.78rem;
+    font-size: clamp(0.7rem, 2.3vw, 0.78rem);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    word-break: break-word;
 }
 
 .panel-block {
-    margin-bottom: 24px;
+    margin-bottom: clamp(14px, 2.5vh, 24px);
 }
 
 .panel-para {
     font-family: var(--font-mono);
-    font-size: 0.92rem;
-    line-height: 1.7;
+    font-size: clamp(0.78rem, 2.4vw, 0.92rem);
+    line-height: 1.65;
     margin: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .mono-entry {
-    margin-top: 8px;
+    margin-top: 6px;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    word-break: break-word;
 }
 
 .entry-title {
-    font-size: 1rem;
+    font-size: clamp(0.85rem, 2.8vw, 1rem);
     font-weight: 700;
+    word-break: break-word;
 }
 
 .entry-sub {
     font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-size: clamp(0.74rem, 2.3vw, 0.85rem);
     color: #444;
+    word-break: break-word;
 }
 
 .entry-desc {
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: clamp(0.72rem, 2.2vw, 0.82rem);
     line-height: 1.5;
     margin-top: 4px;
+    word-break: break-word;
 }
 
-/* Projects Terminal Layout */
+/* ================= SECTION: PROJECTS LAYOUT ================= */
 .terminal-projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: clamp(12px, 2vw, 20px);
 }
 
 .terminal-card {
     border: 1px solid #000000;
-    padding: 16px;
+    padding: clamp(12px, 2vw, 16px);
     background-color: rgba(255, 255, 255, 0.4);
     display: flex;
     flex-direction: column;
+    word-break: break-word;
 }
 
 .terminal-card.highlighted {
@@ -859,31 +937,43 @@ a {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.card-bar .tape-red {
+    font-size: clamp(0.65rem, 2.2vw, 0.78rem);
+    padding: 2px 6px;
+    margin-bottom: 0;
 }
 
 .card-id {
-    font-size: 0.78rem;
+    font-size: clamp(0.68rem, 2vw, 0.78rem);
     color: #555;
 }
 
 .card-proj-title {
-    font-size: 1.25rem;
+    font-size: clamp(1rem, 3.2vw, 1.25rem);
     margin: 0 0 4px 0;
+    line-height: 1.2;
+    word-break: break-word;
 }
 
 .card-proj-sub {
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: clamp(0.72rem, 2.3vw, 0.82rem);
     font-weight: 700;
     color: var(--tape-red);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    word-break: break-word;
 }
 
 .card-proj-desc {
     font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1.6;
-    margin: 0 0 12px 0;
+    font-size: clamp(0.76rem, 2.4vw, 0.85rem);
+    line-height: 1.55;
+    margin: 0 0 10px 0;
+    word-break: break-word;
 }
 
 .card-bullet-box {
@@ -891,11 +981,16 @@ a {
     flex-direction: column;
     gap: 4px;
     font-family: var(--font-mono);
-    font-size: 0.78rem;
-    margin-bottom: 14px;
+    font-size: clamp(0.7rem, 2.2vw, 0.78rem);
+    margin-bottom: 12px;
     background-color: rgba(0, 0, 0, 0.04);
-    padding: 8px;
+    padding: clamp(6px, 1.8vw, 10px);
     border-left: 2px solid #000000;
+    word-break: break-word;
+}
+
+.impact-line {
+    line-height: 1.45;
 }
 
 .card-stack-row {
@@ -903,121 +998,233 @@ a {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    font-size: 0.72rem;
+    align-items: center;
 }
 
 .stack-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     color: #000000;
     font-weight: 700;
+    font-size: clamp(0.65rem, 2vw, 0.74rem);
+    word-break: break-word;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    padding: 2px 6px;
 }
 
-/* Experience Terminal Layout */
+/* Tech Icon Style: Aesthetic pure black icon */
+.tech-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+    filter: brightness(0);
+    flex-shrink: 0;
+}
+
+/* ================= SECTION: EXPERIENCE LAYOUT ================= */
 .experience-list {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: clamp(14px, 2.5vw, 24px);
 }
 
 .experience-block {
     border-left: 3px solid #000000;
-    padding-left: 16px;
+    padding-left: clamp(8px, 2vw, 16px);
+    word-break: break-word;
 }
 
 .exp-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
     margin-bottom: 6px;
 }
 
+.exp-header .tape-red,
+.exp-header .tape-black {
+    font-size: clamp(0.65rem, 2.2vw, 0.78rem);
+    padding: 2px 6px;
+    margin-bottom: 0;
+}
+
 .exp-company {
-    font-size: 0.82rem;
+    font-size: clamp(0.7rem, 2.3vw, 0.82rem);
     color: #333;
+    word-break: break-word;
 }
 
 .exp-title {
-    font-size: 1.15rem;
+    font-size: clamp(0.92rem, 3vw, 1.15rem);
     margin: 0 0 8px 0;
+    line-height: 1.25;
+    word-break: break-word;
 }
 
 .exp-bullets {
     font-family: var(--font-mono);
-    font-size: 0.86rem;
-    line-height: 1.6;
+    font-size: clamp(0.74rem, 2.3vw, 0.86rem);
+    line-height: 1.55;
     margin: 0;
-    padding-left: 20px;
+    padding-left: clamp(14px, 3.2vw, 20px);
+    word-break: break-word;
 }
 
-/* Skills Terminal Layout */
+.exp-bullets li {
+    margin-bottom: 4px;
+}
+
+/* ================= SECTION: SKILLS LAYOUT ================= */
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: clamp(12px, 2vw, 20px);
 }
 
 .skill-category {
     border: 1px solid #000000;
-    padding: 16px;
+    padding: clamp(12px, 2vw, 16px);
     background-color: rgba(255, 255, 255, 0.4);
+    word-break: break-word;
+}
+
+.skill-category .tape-red,
+.skill-category .tape-black {
+    font-size: clamp(0.7rem, 2.3vw, 0.82rem);
+    padding: 2px 6px;
 }
 
 .tag-cloud {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 12px;
+    gap: clamp(5px, 1.2vw, 8px);
+    margin-top: 10px;
 }
 
 .tag-cloud span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: clamp(0.68rem, 2.1vw, 0.8rem);
     border: 1px solid #000000;
-    padding: 3px 8px;
+    padding: 3px clamp(5px, 1.2vw, 8px);
     background-color: #ffffff;
+    word-break: break-word;
+    transition: background-color 0.12s ease;
 }
 
-/* Contact Terminal Layout */
+.tag-cloud span:hover {
+    background-color: var(--tape-red);
+}
+
+/* ================= SECTION: CONTACT LAYOUT ================= */
 .contact-terminal-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: clamp(12px, 2vw, 20px);
 }
 
 .contact-box {
     border: 1px solid #000000;
-    padding: 18px;
+    padding: clamp(12px, 2.5vw, 18px);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     background-color: rgba(255, 255, 255, 0.4);
+    word-break: break-word;
+}
+
+.contact-box .tape-red,
+.contact-box .tape-black {
+    font-size: clamp(0.7rem, 2.3vw, 0.82rem);
+    padding: 2px 6px;
+    margin-bottom: 0;
 }
 
 .contact-value {
     font-family: var(--font-mono);
-    font-size: 0.95rem;
+    font-size: clamp(0.75rem, 2.6vw, 0.95rem);
     word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
-/* Responsive */
+.contact-box button,
+.contact-box a {
+    font-size: clamp(0.7rem, 2.3vw, 0.85rem);
+    padding: 4px clamp(6px, 1.8vw, 10px);
+}
+
+/* ================= RESPONSIVE MEDIA QUERIES ================= */
 @media (max-width: 900px) {
-    .tape-statement {
-        font-size: 1.15rem;
-    }
     .hud-container {
-        padding: 60px 16px 16px 16px;
-    }
-    .right-model-tabs {
-        display: none;
+        padding: clamp(50px, 6.5vh, 60px) 38px clamp(8px, 1.5vh, 16px) clamp(10px, 2.5vw, 16px);
     }
     .right-rail {
-        display: none;
+        display: flex;
+        width: 30px;
+        top: 44px;
+        padding: 10px 0;
+    }
+    .feedback-tab {
+        font-size: 0.62rem;
+        padding: 6px 2px;
+        letter-spacing: 0.05em;
+    }
+    .rail-scroll-indicator {
+        font-size: 0.6rem;
+        gap: 4px;
+    }
+    .rail-index {
+        font-size: 0.72rem;
+    }
+    .pixel-dino-btn {
+        padding: 2px;
+    }
+    .dino-star-img {
+        width: 17px;
+        height: 17px;
     }
     .bottom-hud-bar {
         margin-right: 0;
     }
+}
+
+@media (max-width: 820px) {
     .about-grid {
         grid-template-columns: 1fr;
+    }
+    .pfp-terminal-card {
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+        max-width: 100%;
+    }
+    .pfp-border {
+        max-width: 110px;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 520px) {
+    .pfp-terminal-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .pfp-border {
+        max-width: 140px;
+    }
+    .bottom-center-nav .copyright-text {
+        display: none;
+    }
+    .terminal-window {
+        max-height: 96dvh;
     }
 }
 </style>

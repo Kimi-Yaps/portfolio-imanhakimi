@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { usePixelTransition } from '../composables/usePixelTransition'
 
@@ -7,19 +6,7 @@ const router = useRouter()
 const route = useRoute()
 const { triggerPixelTransition } = usePixelTransition()
 
-const emit = defineEmits<{
-    (e: 'open-section', section: string): void
-}>()
-
-const isMenuOpen = ref(false)
-
-const handleNavClick = (section: string) => {
-    isMenuOpen.value = false
-    emit('open-section', section)
-}
-
 const navigateToRoute = (path: string) => {
-    isMenuOpen.value = false
     if (route.path === path) return
     triggerPixelTransition(async () => {
         await router.push(path)
@@ -30,58 +17,20 @@ const navigateToRoute = (path: string) => {
 <template>
     <header class="navbar-wrapper">
         <nav class="navigation">
-            <!-- Brand Link matching [ ISLADJAN.COM ] -->
+            <!-- Brand Link / Logo -->
             <a href="/" class="bracket-btn brand-link" @click.prevent="navigateToRoute('/')">
                 <img src="/Star.svg" alt="Star Logo" class="brand-star" />
                 <span class="brand-text">[ IMANHAKIMI.COM ]</span>
             </a>
 
-            <!-- Right Side Navigation -->
-            <div class="nav-links">
-                <button class="bracket-btn" @click="handleNavClick('about')">
-                    [ ABOUT_ME ]
-                </button>
-                <button class="bracket-btn" @click="handleNavClick('projects')">
-                    [ MY_WORK ]
-                </button>
-                <button class="bracket-btn" @click="handleNavClick('contact')">
-                    [ CONTACT ]
-                </button>
-                <a
-                    href="mailto:hakimiiman342ab@gmail.com"
-                    class="bracket-btn bordered highlight-link"
-                >
-                    [ HIRE ME ]
-                </a>
-            </div>
-
-            <!-- Mobile Menu Toggle -->
-            <button
-                class="bracket-btn mobile-toggle"
-                @click="isMenuOpen = !isMenuOpen"
+            <!-- Hire Me Action -->
+            <a
+                href="mailto:hakimiiman342ab@gmail.com"
+                class="bracket-btn bordered highlight-link"
             >
-                [ {{ isMenuOpen ? 'CLOSE' : 'MENU' }} ]
-            </button>
-        </nav>
-
-        <!-- Mobile Drawer -->
-        <div v-if="isMenuOpen" class="mobile-drawer">
-            <button class="bracket-btn mobile-item" @click="handleNavClick('about')">
-                → ABOUT_ME
-            </button>
-            <button class="bracket-btn mobile-item" @click="handleNavClick('projects')">
-                → MY_WORK
-            </button>
-            <button class="bracket-btn mobile-item" @click="handleNavClick('experience')">
-                → EXPERIENCE
-            </button>
-            <button class="bracket-btn mobile-item" @click="handleNavClick('contact')">
-                → CONTACT
-            </button>
-            <a href="mailto:hakimiiman342ab@gmail.com" class="bracket-btn mobile-item highlight-link">
-                → HIRE ME (EMAIL)
+                [ HIRE ME ]
             </a>
-        </div>
+        </nav>
     </header>
 </template>
 
@@ -97,26 +46,32 @@ const navigateToRoute = (path: string) => {
 }
 
 .navigation {
+    width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 10px 24px;
+    padding: 10px clamp(12px, 3vw, 24px);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
 }
 
 .brand-link {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.95rem;
+    gap: clamp(6px, 1.5vw, 10px);
+    font-size: clamp(0.76rem, 3.2vw, 0.95rem);
     font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    padding: 4px 6px;
 }
 
 .brand-star {
-    width: 20px;
-    height: 20px;
+    width: clamp(16px, 3.5vw, 20px);
+    height: clamp(16px, 3.5vw, 20px);
     display: inline-block;
+    flex-shrink: 0;
     transition: transform 0.4s ease;
 }
 
@@ -124,10 +79,9 @@ const navigateToRoute = (path: string) => {
     transform: rotate(90deg);
 }
 
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.brand-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .highlight-link {
@@ -135,43 +89,13 @@ const navigateToRoute = (path: string) => {
     color: #000000;
     border: 1px solid #000000;
     font-weight: 700;
+    font-size: clamp(0.75rem, 2.8vw, 0.88rem);
+    padding: 4px clamp(8px, 2vw, 12px);
+    white-space: nowrap;
 }
 
 .highlight-link:hover {
     background-color: #000000;
     color: #ffffff;
-}
-
-.mobile-toggle {
-    display: none;
-    font-weight: 700;
-}
-
-.mobile-drawer {
-    display: none;
-    flex-direction: column;
-    padding: 16px 24px;
-    background-color: var(--bg-color);
-    border-bottom: 1px solid var(--border-color);
-    gap: 8px;
-}
-
-.mobile-item {
-    font-size: 1rem;
-    padding: 8px;
-    text-align: left;
-    width: 100%;
-}
-
-@media (max-width: 820px) {
-    .nav-links {
-        display: none;
-    }
-    .mobile-toggle {
-        display: block;
-    }
-    .mobile-drawer {
-        display: flex;
-    }
 }
 </style>

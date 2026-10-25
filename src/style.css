@@ -31,7 +31,9 @@
   --font-display: var(--font-pixel);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -46,54 +48,64 @@ body {
   font-family: var(--font-pixel);
   overflow-x: hidden;
   -webkit-font-smoothing: none;
+  overflow-wrap: break-word;
 }
 
 #app {
   width: 100%;
   min-height: 100%;
   background-color: var(--bg-color);
+  overflow-x: hidden;
 }
 
-/* Flat Red Tape Highlight (No Neobrutalism Shadows) */
+/* Flat Red Tape Highlight (Responsive Fluid Shrink) */
 .tape-red {
   background-color: var(--tape-red);
   color: #000000;
-  padding: 3px 8px;
+  padding: clamp(2px, 0.8vw, 4px) clamp(4px, 1.2vw, 8px);
   display: inline-block;
   font-family: var(--font-pixel);
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.25;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
 }
 
-/* Flat Black Tape Highlight */
+/* Flat Black Tape Highlight (Responsive Fluid Shrink) */
 .tape-black {
   background-color: #000000;
   color: #ffffff;
-  padding: 3px 8px;
+  padding: clamp(2px, 0.8vw, 4px) clamp(4px, 1.2vw, 8px);
   display: inline-block;
   font-family: var(--font-pixel);
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.25;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
 }
 
 /* Flat Bracket Button */
 .bracket-btn {
   font-family: var(--font-pixel);
-  font-size: 0.88rem;
+  font-size: clamp(0.75rem, 2.6vw, 0.88rem);
   background: transparent;
   color: #000000;
   border: 1px solid transparent;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 4px clamp(6px, 1.5vw, 8px);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: all 0.1s ease;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .bracket-btn:hover {
@@ -108,17 +120,18 @@ body {
 /* Arrow Navigation Link */
 .nav-arrow-link {
   font-family: var(--font-pixel);
-  font-size: 1rem;
+  font-size: clamp(0.75rem, 2.8vw, 1rem);
   color: #000000;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 6px;
+  padding: 3px clamp(4px, 1vw, 6px);
   cursor: pointer;
   background: transparent;
   border: none;
   transition: background 0.12s ease, color 0.12s ease;
+  max-width: 100%;
 }
 
 .nav-arrow-link:hover,
@@ -127,9 +140,22 @@ body {
   color: #000000;
 }
 
+/* Terminal Modal Transition */
+.terminal-enter-active,
+.terminal-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.terminal-enter-from,
+.terminal-leave-to {
+  opacity: 0;
+  transform: scale(0.97);
+}
+
 /* Custom Pixel Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-color);
