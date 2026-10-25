@@ -1,6 +1,12 @@
+<IfModule mod_mime.c>
+  AddType image/svg+xml .svg .svgz
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  # Map any /icons/ requests to /tech-icons/ to bypass Apache Alias
+  RewriteRule ^icons/(.*)$ /tech-icons/$1 [L]
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

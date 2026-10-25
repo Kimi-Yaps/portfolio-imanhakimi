@@ -22,14 +22,6 @@ const navigateToRoute = (path: string) => {
                 <img src="/Star.svg" alt="Star Logo" class="brand-star" />
                 <span class="brand-text">[ IMANHAKIMI.COM ]</span>
             </a>
-
-            <!-- Hire Me Action -->
-            <a
-                href="mailto:hakimiiman342ab@gmail.com"
-                class="bracket-btn bordered highlight-link"
-            >
-                [ HIRE ME ]
-            </a>
         </nav>
     </header>
 </template>

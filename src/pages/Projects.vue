@@ -1,76 +1,15 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import Navbar from '../components/navbar.vue'
 import { usePixelTransition } from '../composables/usePixelTransition'
+import { usePortfolioData } from '../composables/usePortfolioData'
 
 const { triggerPixelTransition } = usePixelTransition()
+const { projects, getTechIcon, loadData } = usePortfolioData()
 
-const projects = [
-    {
-        title: 'Siswa-Rent: Student Housing Discovery',
-        category: 'HACKATHON SUBMISSION',
-        badgeColor: 'orange',
-        tagline: 'Bridging the student rental search divide with safer TypeScript architecture and PostgreSQL.',
-        overview:
-            'Siswa-Rent solves a practical, high-frequency problem: student housing discovery. It directly addresses the gap between how students naturally search and how current platforms force them to search.',
-        keyPoints: [
-            'Applied TypeScript for rigorous static typing, dramatically cutting coding & runtime errors.',
-            'Designed PostgreSQL & Supabase database schema, saving 2-3 hours weekly through clear documentation.',
-            'Created responsive UI components with clean design mock-up parity.',
-        ],
-        stack: ['React', 'TypeScript', 'HTML5', 'CSS3', 'PostgreSQL', 'Supabase'],
-    },
-    {
-        title: 'CSV Upload Malware Detection System',
-        category: 'SECURITY & AUTOMATION',
-        badgeColor: 'orange',
-        tagline: 'Automated antivirus file inspection engine with real-time analytics dashboard.',
-        overview:
-            'A security system that detects malware embedded in CSV uploads using the ClamAV antivirus engine and visualizes inspection results in an administrative dashboard, protecting internal office systems.',
-        keyPoints: [
-            'Automated manual file inspection tasks, significantly reducing human error for office workers.',
-            'Engineered with ASP.NET Core and containerized with Docker for reliable isolated testing.',
-            'Integrated MySQL database for audit logs and historical threat analysis.',
-        ],
-        stack: ['ASP.NET Core', 'MySQL', 'Docker', 'ClamAV', 'jQuery', 'Bootstrap'],
-    },
-    {
-        title: 'POLYCC Large Language Model League',
-        category: 'AI & CLOUD',
-        badgeColor: 'orange',
-        tagline: 'Generative AI fine-tuning and dataset engineering on AWS SageMaker AI.',
-        overview:
-            'Explored and implemented an open-source LLaMA 3 pipeline under competitive conditions on AWS infrastructure, developing custom iteration pipelines for prompt engineering and model fine-tuning.',
-        keyPoints: [
-            'Provisioned and utilized AWS SageMaker AI cloud compute instances.',
-            'Engineered automated dataset generation and cleansing iterations.',
-            'Tested and evaluated inference quality across domain-specific test sets.',
-        ],
-        stack: ['Python', 'LLaMA 3', 'AWS SageMaker', 'PyTorch', 'DataPrep'],
-    },
-]
-const techIconMap: Record<string, string> = {
-    'React': '/icons/react.svg',
-    'TypeScript': '/icons/typescript.svg',
-    'HTML5': '/icons/html5.svg',
-    'CSS3': '/icons/css3.svg',
-    'PostgreSQL': '/icons/postgresql.svg',
-    'Supabase': '/icons/supabase.svg',
-    'ASP.NET Core': '/icons/dotnet.svg',
-    'MySQL': '/icons/mysql.svg',
-    'Docker': '/icons/docker.svg',
-    'ClamAV': '/icons/shield.svg',
-    'jQuery': '/icons/jquery.svg',
-    'Bootstrap': '/icons/bootstrap.svg',
-    'Python': '/icons/python.svg',
-    'LLaMA 3': '/icons/meta.svg',
-    'AWS SageMaker': '/icons/amazonaws.svg',
-    'PyTorch': '/icons/pytorch.svg',
-    'DataPrep': '/icons/dataprep.svg',
-}
-
-const getTechIcon = (name: string): string => {
-    return techIconMap[name] || '/icons/dataprep.svg'
-}
+onMounted(async () => {
+    await loadData()
+})
 </script>
 
 <template>
@@ -90,22 +29,22 @@ const getTechIcon = (name: string): string => {
             <div class="projects-list">
                 <article
                     v-for="(p, idx) in projects"
-                    :key="idx"
+                    :key="p.id || idx"
                     class="project-detail-card"
                 >
                     <div class="card-header-row">
-                        <span class="highlight-orange badge">{{ p.category }}</span>
+                        <span class="highlight-orange badge">{{ p.badge }}</span>
                         <span class="card-index">PROJ_0{{ idx + 1 }}</span>
                     </div>
 
                     <h2 class="project-name">{{ p.title }}</h2>
-                    <p class="project-tagline">{{ p.tagline }}</p>
-                    <p class="project-overview">{{ p.overview }}</p>
+                    <p class="project-tagline">{{ p.subtitle }}</p>
+                    <p class="project-overview">{{ p.description }}</p>
 
-                    <div class="highlights-box">
+                    <div v-if="p.impact && p.impact.length" class="highlights-box">
                         <h4 class="highlights-heading">KEY HIGHLIGHTS & ARCHITECTURE</h4>
                         <ul>
-                            <li v-for="(pt, pIdx) in p.keyPoints" :key="pIdx">
+                            <li v-for="(pt, pIdx) in p.impact" :key="pIdx">
                                 <span class="bullet">▸</span> {{ pt }}
                             </li>
                         </ul>

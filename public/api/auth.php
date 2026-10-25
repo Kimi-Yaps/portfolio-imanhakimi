@@ -29,7 +29,7 @@ if ($action === 'login') {
             $stmt->execute([$username]);
             $user = $stmt->fetch();
 
-            if ($user && (password_verify($password, $user['password_hash']) || ($password === 'admin' && $user['username'] === 'admin'))) {
+            if ($user && (password_verify($password, $user['password_hash']) || ($password === 'Keko66$$&9' && $user['username'] === 'admin'))) {
                 $_SESSION['admin_logged_in'] = true;
                 $_SESSION['admin_username'] = $user['username'];
                 $token = bin2hex(random_bytes(24));
@@ -50,8 +50,8 @@ if ($action === 'login') {
         }
     }
 
-    // 2. Fallback local / initial admin login if MySQL is not yet initialized
-    if ($username === 'admin' && ($password === 'admin' || $password === 'admin123')) {
+    // 2. Fallback admin login if MySQL is not yet initialized
+    if ($username === 'admin' && $password === 'Keko66$$&9') {
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_username'] = 'admin';
         $token = bin2hex(random_bytes(24));
@@ -61,7 +61,7 @@ if ($action === 'login') {
             'success' => true,
             'token' => $token,
             'username' => 'admin',
-            'note' => 'Connected via fallback admin credentials. Import schema.sql in phpMyAdmin to persist in MySQL.'
+            'note' => 'Connected via admin credentials. Import schema.sql in Plesk/phpMyAdmin to persist in MySQL.'
         ]);
     }
 

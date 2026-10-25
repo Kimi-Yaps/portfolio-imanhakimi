@@ -148,6 +148,43 @@ const onPointerUp = () => {
     isDragging.value = false
 }
 
+// Responsive scale & position for mobile devices
+const isMobile = ref(typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+const isSmallMobile = ref(typeof window !== 'undefined' ? window.innerWidth < 480 : false)
+
+const handleResize = () => {
+    if (typeof window === 'undefined') return
+    const width = window.innerWidth
+    isMobile.value = width < 768
+    isSmallMobile.value = width < 480
+}
+
+const modelScale = computed<[number, number, number]>(() => {
+    if (isSmallMobile.value) return [0.52, 0.52, 0.52]
+    if (isMobile.value) return [0.65, 0.65, 0.65]
+    return [1, 1, 1]
+})
+
+const modelPosition = computed<[number, number, number]>(() => {
+    if (isSmallMobile.value) return [0, -0.3, 0]
+    if (isMobile.value) return [0, -0.15, 0]
+    return [0, 0, 0]
+})
+
+const cameraPosition = computed<[number, number, number]>(() => {
+    if (isSmallMobile.value) return [0, 5.6, 4.6]
+    if (isMobile.value) return [0, 5.3, 4.3]
+    return [0, 5, 4]
+})
+
+// Sync scale directly onto Three.js scene object
+watch([scene, modelScale, modelPosition], () => {
+    if (scene.value) {
+        scene.value.scale.set(modelScale.value[0], modelScale.value[1], modelScale.value[2])
+        scene.value.position.set(modelPosition.value[0], modelPosition.value[1], modelPosition.value[2])
+    }
+}, { immediate: true })
+
 let animFrameId: number
 const animate = () => {
     if (!isDragging.value && scene.value) {
@@ -157,10 +194,15 @@ const animate = () => {
 }
 
 onMounted(() => {
+    handleResize()
+    window.addEventListener('resize', handleResize)
     animFrameId = requestAnimationFrame(animate)
 })
 
 onUnmounted(() => {
+    if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize)
+    }
     cancelAnimationFrame(animFrameId)
 })
 </script>
@@ -169,12 +211,12 @@ onUnmounted(() => {
     <div class="canvas-container" @pointerdown="onPointerDown" @pointermove="onPointerMove" @pointerup="onPointerUp"
         @pointerleave="onPointerUp">
         <TresCanvas window-size alpha :clear-alpha="0">
-            <TresPerspectiveCamera :position="[0, 5, 4]" :look-at="[0, 0, 0]" />
+            <TresPerspectiveCamera :position="cameraPosition" :look-at="[0, 0, 0]" />
             <TresAmbientLight :intensity="1.5" />
             <TresDirectionalLight :position="[5, 5, 5]" :intensity="2" />
 
-            <!-- Render the model -->
-            <primitive v-if="scene" :object="scene" />
+            <!-- Render the model with responsive scaling -->
+            <primitive v-if="scene" :object="scene" :scale="modelScale" :position="modelPosition" />
         </TresCanvas>
     </div>
 </template>

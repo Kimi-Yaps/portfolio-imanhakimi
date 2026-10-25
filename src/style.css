@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
 @font-face {
   font-family: 'BebasNeue';
@@ -28,6 +28,8 @@
   --font-pixel: 'Silkscreen', monospace;
   --font-mono: 'Space Mono', 'Courier New', monospace;
   --font-bebas: 'BebasNeue', sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-tech: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: var(--font-pixel);
 }
 
@@ -92,13 +94,16 @@ body {
 
 /* Flat Bracket Button */
 .bracket-btn {
-  font-family: var(--font-pixel);
-  font-size: clamp(0.75rem, 2.6vw, 0.88rem);
+  font-family: var(--font-tech), var(--font-sans);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: clamp(0.78rem, 2.5vw, 0.9rem);
   background: transparent;
   color: #000000;
   border: 1px solid transparent;
   cursor: pointer;
-  padding: 4px clamp(6px, 1.5vw, 8px);
+  padding: 5px clamp(8px, 1.5vw, 12px);
   text-decoration: none;
   display: inline-flex;
   align-items: center;

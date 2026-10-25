@@ -19,13 +19,13 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
   `last_login` DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Initial default admin:
+-- Initial admin account:
 -- Username: admin
--- Password: admin (change in admin dashboard upon first login)
--- Hash generated using password_hash('admin', PASSWORD_BCRYPT)
+-- Password: Keko66$$&9
+-- Hash generated using password_hash('Keko66$$&9', PASSWORD_BCRYPT)
 INSERT INTO `admin_users` (`id`, `username`, `password_hash`) VALUES
-(1, 'admin', '$2y$10$U6U.9k4jN49nO79n5v3mXeXJ9o4oWj47lK0yA3v5g3Lp2xJ5p2l5q')
-ON DUPLICATE KEY UPDATE `username` = `username`;
+(1, 'admin', '$2y$10$v8nTqIPUQr4yZwGpEkP8j.WYWmNCvT8YvQJLLT0dRGqsbfekpeVkS')
+ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`);
 
 -- ----------------------------------------------------------
 -- 2. Table structure for profile_info

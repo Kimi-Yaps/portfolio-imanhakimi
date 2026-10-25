@@ -1,10 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import Navbar from '../components/navbar.vue'
 import modelDisplay from '../components/modelDisplay.vue'
 import { usePixelTransition } from '../composables/usePixelTransition'
+import { usePortfolioData } from '../composables/usePortfolioData'
 
 const { triggerPixelTransition } = usePixelTransition()
+const {
+    profile,
+    projects,
+    skills,
+    experiences,
+    education,
+    certifications,
+    getTechIcon,
+    loadData
+} = usePortfolioData()
 
 // Active modal / drawer state ('about' | 'projects' | 'experience' | 'skills' | 'contact' | null)
 const activeSection = ref<string | null>(null)
@@ -33,150 +44,14 @@ const copyToClipboard = (text: string, field: string) => {
     }, 2000)
 }
 
-// Tech Stack Icon Mapping (Clean, Open-Source Monochrome Black SVGs)
-const techIconMap: Record<string, string> = {
-    // Frontend
-    'React': '/icons/react.svg',
-    'React JS': '/icons/react.svg',
-    'TypeScript': '/icons/typescript.svg',
-    'JavaScript': '/icons/javascript.svg',
-    'HTML5': '/icons/html5.svg',
-    'HTML/CSS': '/icons/html5.svg',
-    'CSS3': '/icons/css3.svg',
-    'Vue.js': '/icons/vue.svg',
-    'TresJS 3D': '/icons/threejs.svg',
-    'WordPress': '/icons/wordpress.svg',
-    'jQuery': '/icons/jquery.svg',
-    'Bootstrap': '/icons/bootstrap.svg',
-
-    // Backend & Databases
-    'PostgreSQL': '/icons/postgresql.svg',
-    'Supabase': '/icons/supabase.svg',
-    'MySQL': '/icons/mysql.svg',
-    'ASP.NET Core': '/icons/dotnet.svg',
-    'C#': '/icons/csharp.svg',
-    'Python': '/icons/python.svg',
-    'PHP': '/icons/php.svg',
-    'Firebase': '/icons/firebase.svg',
-    'Google Apps Script': '/icons/google.svg',
-    'ClamAV': '/icons/shield.svg',
-
-    // Cloud, AI & Data Tools
-    'GCP Cloud Run': '/icons/googlecloud.svg',
-    'AWS SageMaker': '/icons/amazonaws.svg',
-    'AWS SageMaker AI': '/icons/amazonaws.svg',
-    'Docker': '/icons/docker.svg',
-    'Kubernetes': '/icons/kubernetes.svg',
-    'GitHub / GitLab': '/icons/github.svg',
-    'Jenkins': '/icons/jenkins.svg',
-    'Grafana': '/icons/grafana.svg',
-    'PyTorch': '/icons/pytorch.svg',
-    'LLaMA 3': '/icons/meta.svg',
-    'Google Sheets': '/icons/googlesheets.svg',
-    'Google Looker Studio': '/icons/looker.svg',
-    'Power BI': '/icons/powerbi.svg',
-    'DataPrep': '/icons/dataprep.svg',
-    'Data Analytics': '/icons/analytics.svg',
-}
-
-const getTechIcon = (name: string): string => {
-    return techIconMap[name] || '/icons/dataprep.svg'
-}
-
-// Skills Arrays
-const frontendSkills = [
-    'HTML5',
-    'CSS3',
-    'JavaScript',
-    'TypeScript',
-    'React JS',
-    'Vue.js',
-    'TresJS 3D',
-    'WordPress',
-]
-
-const backendSkills = [
-    'PostgreSQL',
-    'Supabase',
-    'MySQL',
-    'ASP.NET Core',
-    'C#',
-    'Python',
-    'PHP',
-    'Firebase',
-    'Google Apps Script',
-]
-
-const cloudSkills = [
-    'GCP Cloud Run',
-    'AWS SageMaker AI',
-    'Docker',
-    'Kubernetes',
-    'GitHub / GitLab',
-    'Jenkins',
-    'Grafana',
-]
-
-// Projects from Resume
-const projects = [
-    {
-        id: 'siswa-rent',
-        title: 'SISWA-RENT',
-        badge: 'HACKATHON SUBMISSION',
-        subtitle: 'Student Housing Discovery Platform',
-        description:
-            'Siswa-Rent solves a practical, high-frequency problem: student housing discovery. It directly addresses the gap between how students naturally search and how current platforms force them to search.',
-        impact: [
-            'Reduced coding errors using TypeScript for safer, more reliable architecture.',
-            'Architected database with PostgreSQL / Supabase, saving 2-3 hours weekly through clear documentation.',
-        ],
-        stack: ['React', 'TypeScript', 'HTML/CSS', 'PostgreSQL', 'Supabase'],
-    },
-    {
-        id: 'malware-detection',
-        title: 'CSV MALWARE DETECTION',
-        badge: 'SECURITY & AUTOMATION',
-        subtitle: 'Automated Antivirus Dashboard Engine',
-        description:
-            'A security system that detects malware embedded in uploaded CSV files using the ClamAV antivirus engine and displays telemetry in an administrative dashboard.',
-        impact: [
-            'Significantly reduced human error while reducing manual labor for office personnel.',
-            'Containerized scanning queues using Docker with ASP.NET Core backend.',
-        ],
-        stack: ['ASP.NET Core', 'MySQL', 'Docker', 'ClamAV', 'jQuery', 'Bootstrap'],
-    },
-    {
-        id: 'polycc-llm',
-        title: 'POLYCC LLM LEAGUE',
-        badge: 'AI & CLOUD',
-        subtitle: 'LLaMA 3 Fine-Tuning on AWS SageMaker',
-        description:
-            'Engineered custom AI training and inference workflows using LLaMA 3 under competitive cloud scenarios, generating new iterations of datasets for fine-tuning.',
-        impact: [
-            'Deployed scalable LLaMA 3 models inside AWS SageMaker AI cloud environments.',
-            'Automated dataset pipeline iterations and prompt evaluation workflows.',
-        ],
-        stack: ['Python', 'LLaMA 3', 'AWS SageMaker', 'PyTorch', 'DataPrep'],
-    },
-    {
-        id: 'data-hackathon',
-        title: 'DATAHACKATHON 2024',
-        badge: 'TOP 4 FINISH',
-        subtitle: 'National Business Intelligence Analytics',
-        description:
-            'Secured Top 4 national finish through interactive dataset preparation, predictive analytics, and executive dashboarding presented directly to industry judges.',
-        impact: [
-            'Built visual analytics dashboards using Google Looker Studio and Power BI.',
-            'Delivered live technical findings to a professional evaluation panel.',
-        ],
-        stack: ['Google Looker Studio', 'Power BI', 'Google Sheets', 'Data Analytics'],
-    },
-]
-
 const openProjectModal = (projId: string) => {
     selectedProject.value = projId
     openSection('projects')
 }
+
+onMounted(async () => {
+    await loadData()
+})
 </script>
 
 <template>
@@ -192,16 +67,17 @@ const openProjectModal = (projId: string) => {
             <!-- Top-Left: Statement with Red & Black Tape Highlighting -->
             <div class="tape-statement-block">
                 <div class="tape-statement">
-                    <span class="tape-red">DEVELOPMENT IS ALL ABOUT</span><br />
-                    <span class="tape-black">MOVEMENT.</span><br />
-                    <span class="tape-red">ONE PROJECT ENDS,</span><br />
-                    <span class="tape-red">ANOTHER BEGINS,</span><br />
-                    <span class="tape-red">AND THE RHYTHM NEVER STOPS.</span>
+                    <template v-for="(line, idx) in profile.statement_lines" :key="idx">
+                        <span :class="idx % 2 === 0 ? 'tape-red' : 'tape-black'">
+                            {{ line }}
+                        </span>
+                        <br />
+                    </template>
                 </div>
 
                 <div class="identity-subtext">
-                    <span class="id-name">MUHAMMAD IMAN HAKIMI</span>
-                    <span class="id-role">[ WEB & CLOUD DEVELOPER • SKUDAI, JOHOR ]</span>
+                    <span class="id-name">{{ profile.full_name }}</span>
+                    <span class="id-role">[ {{ profile.role_title }} ]</span>
                 </div>
             </div>
 
@@ -224,13 +100,13 @@ const openProjectModal = (projId: string) => {
                 </button>
             </div>
 
-            <!-- Far-Right: Vertical Sidebar Rail -->
+            <!-- Far-Right: Vertical Sidebar Rail (Mobile & Desktop visible) -->
             <aside class="right-rail">
                 <a
-                    href="mailto:hakimiiman342ab@gmail.com"
+                    :href="'mailto:' + profile.email"
                     class="feedback-tab"
                 >
-                    FEEDBACK ↗
+                    HIRE ME ↗
                 </a>
 
                 <div class="rail-scroll-indicator">
@@ -258,12 +134,6 @@ const openProjectModal = (projId: string) => {
                 </div>
 
                 <div class="bottom-center-nav">
-                    <button class="arrow-btn" aria-label="Previous section" @click="openSection('about')">
-                        ⇦
-                    </button>
-                    <button class="arrow-btn" aria-label="Next section" @click="openSection('projects')">
-                        ⇨
-                    </button>
                     <span class="copyright-text">
                         2026 IMAN HAKIMI. ALL RIGHT RESERVED
                     </span>
@@ -304,12 +174,12 @@ const openProjectModal = (projId: string) => {
                                         />
                                     </div>
                                     <div class="pfp-status">
-                                        <span class="tape-black">STATUS: AVAILABLE</span>
+                                        <span class="tape-black">{{ profile.status_badge }}</span>
                                     </div>
                                     <div class="pfp-meta">
-                                        <div><span class="tape-red">NAME:</span> MUHAMMAD IMAN HAKIMI</div>
-                                        <div><span class="tape-red">LOCATION:</span> SKUDAI, JOHOR</div>
-                                        <div><span class="tape-red">ROLE:</span> WEB & CLOUD DEVELOPER</div>
+                                        <div><span class="tape-red">NAME:</span> {{ profile.full_name }}</div>
+                                        <div><span class="tape-red">LOCATION:</span> {{ profile.location }}</div>
+                                        <div><span class="tape-red">ROLE:</span> {{ profile.role_title }}</div>
                                     </div>
                                 </div>
 
@@ -317,28 +187,27 @@ const openProjectModal = (projId: string) => {
                                     <div class="panel-block">
                                         <h2 class="panel-heading">/// EXECUTIVE_SUMMARY</h2>
                                         <p class="panel-para">
-                                            Applied design mock-ups into clean, pixel-perfect code using HTML, CSS, JavaScript frameworks like React JS & Vue.
-                                            Proved able to leverage technical platforms for data analytics by using Google Looker Studio to secure top 10 in Data Hackathon 2024.
-                                            Created AI solutions utilizing LLaMA 3 and iterative dataset generation on AWS SageMaker AI.
+                                            {{ profile.executive_summary }}
                                         </p>
                                     </div>
 
                                     <div class="panel-block">
                                         <h2 class="panel-heading">/// EDUCATION</h2>
-                                        <div class="mono-entry">
-                                            <span class="tape-red">2023 - 2026</span>
-                                            <div class="entry-title">Polytechnic Mersing Johor</div>
-                                            <div class="entry-sub">Diploma in Information Technology — Networking Track (CGPA 3.07)</div>
+                                        <div v-for="ed in education" :key="ed.id" class="mono-entry">
+                                            <span v-if="ed.period" class="tape-red">{{ ed.period }}</span>
+                                            <div class="entry-title">{{ ed.title }}</div>
+                                            <div class="entry-sub">{{ ed.subtitle }}</div>
+                                            <div v-if="ed.description" class="entry-desc">{{ ed.description }}</div>
                                         </div>
                                     </div>
 
                                     <div class="panel-block">
                                         <h2 class="panel-heading">/// CERTIFICATIONS</h2>
-                                        <div class="mono-entry">
-                                            <div class="entry-title">CAE Cloud Service Associate (CCSA)</div>
-                                            <div class="entry-sub">Siri Number: <span class="tape-black">DEJ1SQMK8Q</span></div>
-                                            <div class="entry-desc">
-                                                Trained on cloud platform deployments, cloud service monitoring, IAM User governance, and scalable web hosting.
+                                        <div v-for="ct in certifications" :key="ct.id" class="mono-entry">
+                                            <div class="entry-title">{{ ct.title }}</div>
+                                            <div class="entry-sub"><span class="tape-black">{{ ct.subtitle }}</span></div>
+                                            <div v-if="ct.description" class="entry-desc">
+                                                {{ ct.description }}
                                             </div>
                                         </div>
                                     </div>
@@ -385,29 +254,20 @@ const openProjectModal = (projId: string) => {
                         <div v-if="activeSection === 'experience'" class="section-content">
                             <h2 class="panel-heading">/// WORK_HISTORY_&_TRACK_RECORD</h2>
                             <div class="experience-list">
-                                <div class="experience-block">
+                                <div
+                                    v-for="exp in experiences"
+                                    :key="exp.id"
+                                    class="experience-block"
+                                >
                                     <div class="exp-header">
-                                        <span class="tape-red">1 OCTOBER 2026 - PRESENT</span>
-                                        <span class="exp-company">UNIVERSITI TEKNOLOGI MALAYSIA</span>
+                                        <span :class="exp.tag_color === 'black' ? 'tape-black' : 'tape-red'">
+                                            {{ exp.period }}
+                                        </span>
+                                        <span class="exp-company">{{ exp.company }}</span>
                                     </div>
-                                    <h3 class="exp-title">Assistant Administrative Officer (MySTEP)</h3>
+                                    <h3 class="exp-title">{{ exp.title }}</h3>
                                     <ul class="exp-bullets">
-                                        <li>Structured and cleansed datasets in Google Sheets to ensure data integrity for automated Google Apps Script workflows.</li>
-                                        <li>Designed and built responsive WordPress page layouts for university events, embedding custom HTML and CSS.</li>
-                                    </ul>
-                                </div>
-
-                                <div class="experience-block">
-                                    <div class="exp-header">
-                                        <span class="tape-black">MARCH - JULY 2026</span>
-                                        <span class="exp-company">UTM DIGITAL, UNIVERSITI TEKNOLOGI MALAYSIA</span>
-                                    </div>
-                                    <h3 class="exp-title">Information Technology Intern</h3>
-                                    <ul class="exp-bullets">
-                                        <li>Collaborated with network team to diagnose and resolve hardware faults on wireless access points and point-to-point links.</li>
-                                        <li>Developed Google Apps Script automations that streamlined recurring team workflows, reducing manual processing time by 35%.</li>
-                                        <li>Built Power BI reports for data analytics, turning raw operational data into visual insights for team decision-making.</li>
-                                        <li>Migrated CRUD operations from a legacy ASP.NET Web Forms/MVC application to ASP.NET Core.</li>
+                                        <li v-for="(b, bi) in exp.bullets" :key="bi">{{ b }}</li>
                                     </ul>
                                 </div>
                             </div>
@@ -420,9 +280,9 @@ const openProjectModal = (projId: string) => {
                                 <div class="skill-category">
                                     <div class="tape-red">FRONTEND DEVELOPMENT</div>
                                     <div class="tag-cloud">
-                                        <span v-for="skill in frontendSkills" :key="skill">
-                                            <img :src="getTechIcon(skill)" :alt="skill" class="tech-icon" />
-                                            {{ skill }}
+                                        <span v-for="skill in skills.frontend" :key="skill.id">
+                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name" class="tech-icon" />
+                                            {{ skill.name }}
                                         </span>
                                     </div>
                                 </div>
@@ -430,9 +290,9 @@ const openProjectModal = (projId: string) => {
                                 <div class="skill-category">
                                     <div class="tape-black">BACKEND & DATABASES</div>
                                     <div class="tag-cloud">
-                                        <span v-for="skill in backendSkills" :key="skill">
-                                            <img :src="getTechIcon(skill)" :alt="skill" class="tech-icon" />
-                                            {{ skill }}
+                                        <span v-for="skill in skills.backend" :key="skill.id">
+                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name" class="tech-icon" />
+                                            {{ skill.name }}
                                         </span>
                                     </div>
                                 </div>
@@ -440,9 +300,9 @@ const openProjectModal = (projId: string) => {
                                 <div class="skill-category">
                                     <div class="tape-red">CLOUD & DEVOPS</div>
                                     <div class="tag-cloud">
-                                        <span v-for="skill in cloudSkills" :key="skill">
-                                            <img :src="getTechIcon(skill)" :alt="skill" class="tech-icon" />
-                                            {{ skill }}
+                                        <span v-for="skill in skills.cloud" :key="skill.id">
+                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name" class="tech-icon" />
+                                            {{ skill.name }}
                                         </span>
                                     </div>
                                 </div>
@@ -455,10 +315,10 @@ const openProjectModal = (projId: string) => {
                             <div class="contact-terminal-grid">
                                 <div class="contact-box">
                                     <div class="tape-red">DIRECT EMAIL</div>
-                                    <div class="contact-value">hakimiiman342ab@gmail.com</div>
+                                    <div class="contact-value">{{ profile.email }}</div>
                                     <button
                                         class="bracket-btn bordered"
-                                        @click="copyToClipboard('hakimiiman342ab@gmail.com', 'email')"
+                                        @click="copyToClipboard(profile.email, 'email')"
                                     >
                                         [ {{ copiedField === 'email' ? '✓ COPIED' : 'COPY EMAIL' }} ]
                                     </button>
@@ -466,10 +326,10 @@ const openProjectModal = (projId: string) => {
 
                                 <div class="contact-box">
                                     <div class="tape-black">TELEPHONE</div>
-                                    <div class="contact-value">0163210744</div>
+                                    <div class="contact-value">{{ profile.phone }}</div>
                                     <button
                                         class="bracket-btn bordered"
-                                        @click="copyToClipboard('0163210744', 'phone')"
+                                        @click="copyToClipboard(profile.phone, 'phone')"
                                     >
                                         [ {{ copiedField === 'phone' ? '✓ COPIED' : 'COPY PHONE' }} ]
                                     </button>
@@ -477,9 +337,9 @@ const openProjectModal = (projId: string) => {
 
                                 <div class="contact-box">
                                     <div class="tape-red">LINKEDIN</div>
-                                    <div class="contact-value">linkedin.com/in/iman-hakimi</div>
+                                    <div class="contact-value">{{ profile.linkedin_url.replace('https://www.', '').replace('https://', '') }}</div>
                                     <a
-                                        href="https://www.linkedin.com/in/iman-hakimi-867a1b2a5/"
+                                        :href="profile.linkedin_url"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         class="bracket-btn bordered"
@@ -490,8 +350,8 @@ const openProjectModal = (projId: string) => {
 
                                 <div class="contact-box">
                                     <div class="tape-black">LOCATION</div>
-                                    <div class="contact-value">Skudai, Johor, Malaysia</div>
-                                    <div class="tape-red">AVAILABLE FOR HIRE</div>
+                                    <div class="contact-value">{{ profile.location }}</div>
+                                    <div class="tape-red">{{ profile.status_badge }}</div>
                                 </div>
                             </div>
                         </div>
