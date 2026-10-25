@@ -1,16 +1,21 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 
 import Home from './pages/Home.vue'
 import Gallery from './pages/Gallery.vue'
+import Projects from './pages/Projects.vue'
+import About from './pages/About.vue'
+import Blog from './pages/Blog.vue'
 
-const routes = [
-  { path: '/', component: HomeView },
-  { path: '/gallery', component: AboutView },
-]
-
-export const router = createRouter({
-  history: createMemoryHistory(),
-  routes,
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: Home },
+    { path: '/gallery', component: Gallery },
+    { path: '/projects', component: Projects },
+    { path: '/about', component: About },
+    { path: '/blog', component: Blog },
+  ]
 })
 
-createApp(App).use(router).mount('#app')
+export { router }
+export default router

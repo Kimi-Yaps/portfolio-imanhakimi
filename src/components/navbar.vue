@@ -8,25 +8,21 @@ import { ref } from 'vue'
 
     <nav class="navigation">
 
-        <button class="navButton-home">
+        <RouterLink to="/" class="navButton-home">
             <h1 class="navButton">Icon</h1>
-        </button>
+        </RouterLink>
 
-        <button class="navButton">
+        <RouterLink to="/gallery" class="navButton">
             <h1 class="navButton">Gallery</h1>
-        </button>
+        </RouterLink>
 
-        <button class="navButton">
+        <RouterLink to="/about" class="navButton">
             <h1 class="navButton">About</h1>
-        </button>
+        </RouterLink>
 
-        <button class="navButton">
+        <RouterLink to="/blog" class="navButton">
             <h1 class="navButton">Blog</h1>
-        </button>
-
-        <button class="navButton">
-            <h1 class="navButton">Contact</h1>
-        </button>
+        </RouterLink>
 
     </nav>
 </template>
@@ -41,7 +37,9 @@ import { ref } from 'vue'
     margin-right: 32em;
 }
 
-button[class^=navButton] {
+.navigation a {
+    text-decoration: none;
+    color: inherit;
     padding: 2em;
     justify-content: center;
     display: flex;
@@ -52,6 +50,4 @@ button[class^=navButton] {
     border-style: none;
     background-color: white;
 }
-
-/* button[class^=navButton]:hover {} */
 </style>

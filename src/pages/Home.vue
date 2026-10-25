@@ -8,5 +8,5 @@ import Navbar from '../components/navbar.vue';
 <template>
 
     <Navbar />
-
+    hi home
 </template>
