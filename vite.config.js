@@ -9,5 +9,8 @@ export default defineConfig({
       ...templateCompilerOptions,
     }),
   ],
+  build: {
+    sourcemap: false, // Prevents source code leakage in production builds (Zeriflow / OWASP)
+  },
 })
 

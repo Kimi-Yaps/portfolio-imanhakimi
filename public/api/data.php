@@ -108,7 +108,7 @@ if ($method === 'GET') {
                             ],
                         'executive_summary' => $profile['executive_summary'] ?? '',
                         'email' => $profile['email'] ?? 'hakimiiman342ab@gmail.com',
-                        'phone' => $profile['phone'] ?? '0163210744',
+                        'phone' => $profile['phone'] ?? '',
                         'linkedin_url' => $profile['linkedin_url'] ?? 'https://www.linkedin.com/in/iman-hakimi-867a1b2a5/'
                     ],
                     'projects' => $projects,
@@ -144,7 +144,7 @@ if ($method === 'GET') {
                 ],
                 'executive_summary' => 'Applied design mock-ups into clean, pixel-perfect code using HTML, CSS, JavaScript frameworks like React JS & Vue. Proved able to leverage technical platforms for data analytics by using Google Looker Studio to secure top 10 in Data Hackathon 2024. Created AI solutions utilizing LLaMA 3 and iterative dataset generation on AWS SageMaker AI.',
                 'email' => 'hakimiiman342ab@gmail.com',
-                'phone' => '0163210744',
+                'phone' => '',
                 'linkedin_url' => 'https://www.linkedin.com/in/iman-hakimi-867a1b2a5/'
             ],
             'projects' => [

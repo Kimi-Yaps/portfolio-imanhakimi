@@ -76,7 +76,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="identity-subtext">
-                    <span class="id-name">{{ profile.full_name }}</span>
+                    <h1 class="id-name">{{ profile.full_name }}</h1>
                     <span class="id-role">[ {{ profile.role_title }} ]</span>
                 </div>
             </div>
@@ -108,18 +108,6 @@ onMounted(async () => {
                 >
                     HIRE ME ↗
                 </a>
-
-                <div class="rail-scroll-indicator">
-                    <span class="rail-arrow">^</span>
-                    <span class="rail-dot">■</span>
-                    <span class="rail-dot active">■</span>
-                    <span class="rail-dot">■</span>
-                    <span class="rail-arrow">v</span>
-                </div>
-
-                <div class="rail-index">
-                    <span>06</span>
-                </div>
 
                 <button class="pixel-dino-btn" title="Contact Iman Hakimi" @click="openSection('contact')">
                     <img src="/Star.svg" alt="Star Icon" class="dino-star-img" />
@@ -324,16 +312,6 @@ onMounted(async () => {
                                     </button>
                                 </div>
 
-                                <div class="contact-box">
-                                    <div class="tape-black">TELEPHONE</div>
-                                    <div class="contact-value">{{ profile.phone }}</div>
-                                    <button
-                                        class="bracket-btn bordered"
-                                        @click="copyToClipboard(profile.phone, 'phone')"
-                                    >
-                                        [ {{ copiedField === 'phone' ? '✓ COPIED' : 'COPY PHONE' }} ]
-                                    </button>
-                                </div>
 
                                 <div class="contact-box">
                                     <div class="tape-red">LINKEDIN</div>
@@ -423,27 +401,31 @@ a {
 
 .identity-subtext {
     font-family: var(--font-pixel);
-    font-size: clamp(0.68rem, 2.4vw, 0.85rem);
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-top: 4px;
+    gap: 6px;
+    margin-top: clamp(14px, 2.5vh, 24px);
     word-break: break-word;
 }
 
 .id-name {
     font-weight: 700;
+    font-size: clamp(0.85rem, 2.2vw, 1.15rem);
     background-color: #000000;
     color: #ffffff;
     display: inline-block;
-    padding: 2px 6px;
+    padding: 3px 8px;
+    letter-spacing: 0.05em;
     width: fit-content;
     max-width: 100%;
+    margin: 0;
+    line-height: 1.25;
 }
 
 .id-role {
     color: #333333;
-    font-size: clamp(0.62rem, 2.2vw, 0.78rem);
+    font-size: clamp(0.65rem, 1.8vw, 0.82rem);
+    letter-spacing: 0.03em;
     word-break: break-word;
 }
 
@@ -493,25 +475,6 @@ a {
 .feedback-tab:hover {
     background-color: var(--tape-red);
     color: #000000;
-}
-
-.rail-scroll-indicator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-pixel);
-    font-size: 0.72rem;
-}
-
-.rail-dot.active {
-    color: var(--tape-red);
-}
-
-.rail-index {
-    font-family: var(--font-pixel);
-    font-size: 0.82rem;
-    font-weight: 700;
 }
 
 .pixel-dino-btn {
@@ -1036,13 +999,6 @@ a {
         font-size: 0.62rem;
         padding: 6px 2px;
         letter-spacing: 0.05em;
-    }
-    .rail-scroll-indicator {
-        font-size: 0.6rem;
-        gap: 4px;
-    }
-    .rail-index {
-        font-size: 0.72rem;
     }
     .pixel-dino-btn {
         padding: 2px;
