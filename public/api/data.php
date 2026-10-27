@@ -25,9 +25,16 @@ if ($method === 'GET') {
                     'title' => $p['title'],
                     'badge' => $p['badge'],
                     'subtitle' => $p['subtitle'],
+                    'category' => $p['category'] ?? 'web',
                     'description' => $p['description'],
                     'impact' => array_values(array_filter(explode("\n", str_replace("\r", "", $p['impact_bullets'])))),
                     'stack' => array_values(array_filter(array_map('trim', explode(',', $p['stack_tags'])))),
+                    'imageUrl' => $p['image_url'] ?? '',
+                    'modelPath' => $p['model_path'] ?? '',
+                    'customShader' => !empty($p['custom_shader']),
+                    'vertexShader' => $p['vertex_shader'] ?? '',
+                    'fragmentShader' => $p['fragment_shader'] ?? '',
+                    'year' => $p['year'] ?? '2026'
                 ];
             }, $projectsRaw);
 
@@ -344,8 +351,8 @@ if ($method === 'POST') {
             if (is_array($projs)) {
                 $pdo->exec('TRUNCATE TABLE projects');
                 $stmt = $pdo->prepare('
-                    INSERT INTO projects (id, title, badge, subtitle, description, impact_bullets, stack_tags, display_order)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO projects (id, title, badge, subtitle, category, description, impact_bullets, stack_tags, image_url, model_path, custom_shader, vertex_shader, fragment_shader, year, display_order)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ');
                 foreach ($projs as $order => $pj) {
                     $impact = is_array($pj['impact'] ?? null) ? implode("\n", $pj['impact']) : ($pj['impact'] ?? '');
@@ -355,9 +362,16 @@ if ($method === 'POST') {
                         $pj['title'] ?? '',
                         $pj['badge'] ?? '',
                         $pj['subtitle'] ?? '',
+                        $pj['category'] ?? 'web',
                         $pj['description'] ?? '',
                         $impact,
                         $stack,
+                        $pj['imageUrl'] ?? '',
+                        $pj['modelPath'] ?? '',
+                        !empty($pj['customShader']) ? 1 : 0,
+                        $pj['vertexShader'] ?? '',
+                        $pj['fragmentShader'] ?? '',
+                        $pj['year'] ?? '2026',
                         $order + 1
                     ]);
                 }

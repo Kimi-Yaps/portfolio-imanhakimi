@@ -21,7 +21,6 @@ const routes = [
         <a href="/">[ IMANHAKIMI.COM ]</a>
         <a href="/projects">[ PROJECTS ]</a>
         <a href="/about">[ ABOUT ]</a>
-        <a href="/gallery">[ GALLERY ]</a>
         <a href="/blog">[ BLOG ]</a>
         <a href="mailto:hakimiiman342ab@gmail.com">[ HIRE ME ↗ ]</a>
       </nav>
@@ -68,7 +67,6 @@ const routes = [
         <a href="/">[ IMANHAKIMI.COM ]</a>
         <a href="/projects">[ PROJECTS ]</a>
         <a href="/about">[ ABOUT ]</a>
-        <a href="/gallery">[ GALLERY ]</a>
         <a href="/blog">[ BLOG ]</a>
         <a href="mailto:hakimiiman342ab@gmail.com">[ HIRE ME ↗ ]</a>
       </nav>
@@ -132,7 +130,6 @@ const routes = [
         <a href="/">[ IMANHAKIMI.COM ]</a>
         <a href="/projects">[ PROJECTS ]</a>
         <a href="/about">[ ABOUT ]</a>
-        <a href="/gallery">[ GALLERY ]</a>
         <a href="/blog">[ BLOG ]</a>
         <a href="mailto:hakimiiman342ab@gmail.com">[ HIRE ME ↗ ]</a>
       </nav>
@@ -173,33 +170,7 @@ const routes = [
       <p>&copy; 2026 Muhammad Iman Hakimi. All rights reserved.</p>
     </footer>`
   },
-  {
-    path: '/gallery',
-    title: 'Visual Gallery & 3D Interactive Design | Muhammad Iman Hakimi',
-    description: 'Interactive 3D visuals, dithered retro pen-and-ink shaders, and creative digital designs by Muhammad Iman Hakimi.',
-    canonical: `${SITE_URL}/gallery`,
-    bodyHtml: `
-    <header>
-      <nav aria-label="Main Navigation">
-        <a href="/">[ IMANHAKIMI.COM ]</a>
-        <a href="/projects">[ PROJECTS ]</a>
-        <a href="/about">[ ABOUT ]</a>
-        <a href="/gallery">[ GALLERY ]</a>
-        <a href="/blog">[ BLOG ]</a>
-        <a href="mailto:hakimiiman342ab@gmail.com">[ HIRE ME ↗ ]</a>
-      </nav>
-    </header>
-    <main>
-      <h1>DIGITAL GALLERY &amp; EXPERIMENTS</h1>
-      <p>Real-time WebGL graphics, custom GLSL dither shaders, and tactile 3D models developed with Three.js &amp; TresJS.</p>
-      <nav>
-        <p><a href="/">&larr; Return to Home</a> | <a href="/projects">Explore Projects &rarr;</a></p>
-      </nav>
-    </main>
-    <footer>
-      <p>&copy; 2026 Muhammad Iman Hakimi. All rights reserved.</p>
-    </footer>`
-  },
+
   {
     path: '/blog',
     title: 'Engineering Blog & Tech Insights | Muhammad Iman Hakimi',
@@ -211,7 +182,6 @@ const routes = [
         <a href="/">[ IMANHAKIMI.COM ]</a>
         <a href="/projects">[ PROJECTS ]</a>
         <a href="/about">[ ABOUT ]</a>
-        <a href="/gallery">[ GALLERY ]</a>
         <a href="/blog">[ BLOG ]</a>
         <a href="mailto:hakimiiman342ab@gmail.com">[ HIRE ME ↗ ]</a>
       </nav>
@@ -232,7 +202,7 @@ const routes = [
       <article>
         <h2>Building High-Performance 3D Shaders with Vue 3 &amp; Three.js</h2>
         <p>Creating retro pen-and-ink dithered materials, custom GLSL fragment shaders, and pixel transitions while keeping bundle sizes light and SEO-friendly.</p>
-        <p><a href="/gallery">View 3D Gallery &rarr;</a></p>
+        <p><a href="/projects">View 3D Project &rarr;</a></p>
       </article>
       <nav>
         <p><a href="/">&larr; Return to Home</a> | <a href="/about">About the Author &rarr;</a></p>

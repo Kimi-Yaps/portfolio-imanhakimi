@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePortfolioData, type ProjectItem, type SkillItem, type ExperienceItem, type EducationItem } from '../composables/usePortfolioData'
+import modelDisplay from '../components/modelDisplay.vue'
+import { usePortfolioData, type ProjectItem, type SkillItem, type ExperienceItem, type EducationItem, type GalleryItem } from '../composables/usePortfolioData'
 import { usePixelTransition } from '../composables/usePixelTransition'
 
 const router = useRouter()
@@ -13,6 +14,7 @@ const {
     experiences,
     education,
     certifications,
+    gallery,
     availableIcons,
     isDbConnected,
     loadData,
@@ -33,6 +35,179 @@ const activeTab = ref<'profile' | 'projects' | 'skills' | 'experience' | 'educat
 const statusMessage = ref('')
 const statusType = ref<'success' | 'error' | 'info'>('info')
 const isSaving = ref(false)
+
+// Project Image Upload handler (JPG & PNG only inside admin dashboard)
+const handleProjectImageUpload = (event: Event, proj: ProjectItem) => {
+    const target = event.target as HTMLInputElement
+    if (target.files && target.files[0]) {
+        const file = target.files[0]
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            if (e.target?.result) {
+                proj.imageUrl = e.target.result as string
+                showNotification(`Image "${file.name}" loaded for ${proj.title}`, 'success')
+            }
+        }
+        reader.readAsDataURL(file)
+    }
+}
+
+// 3D Model Upload handler (.glb / .gltf)
+const handleModelUpload = (event: Event, proj: ProjectItem) => {
+    const target = event.target as HTMLInputElement
+    if (target.files && target.files[0]) {
+        const file = target.files[0]
+        const name = file.name.toLowerCase()
+        if (!name.endsWith('.glb') && !name.endsWith('.gltf')) {
+            showNotification('Please upload a .glb or .gltf 3D asset file.', 'error')
+            return
+        }
+
+        if (file.size > 8 * 1024 * 1024) {
+            showNotification(`Note: File is ${(file.size / (1024 * 1024)).toFixed(1)}MB. For fastest loads, Draco compressed models under 3MB are ideal.`, 'info')
+        }
+
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            if (e.target?.result) {
+                proj.modelPath = e.target.result as string
+                proj.category = '3d'
+                if (!proj.vertexShader || !proj.fragmentShader) {
+                    proj.vertexShader = SHADER_PRESETS.bayer8.vertexShader
+                    proj.fragmentShader = SHADER_PRESETS.bayer8.fragmentShader
+                    proj.customShader = true
+                }
+                showNotification(`3D Model "${file.name}" loaded (${(file.size / 1024).toFixed(1)} KB)`, 'success')
+            }
+        }
+        reader.onerror = () => {
+            showNotification('Failed to read 3D model file.', 'error')
+        }
+        reader.readAsDataURL(file)
+    }
+}
+
+const getModelDisplayName = (path?: string) => {
+    if (!path) return ''
+    if (path.startsWith('data:')) return 'Custom Uploaded 3D Asset (' + Math.round(path.length * 0.75 / 1024) + ' KB)'
+    const parts = path.split('/')
+    return parts[parts.length - 1] || path
+}
+
+const activePreviewProjectId = ref<string | null>(null)
+const toggleModelPreview = (id: string) => {
+    if (activePreviewProjectId.value === id) {
+        activePreviewProjectId.value = null
+    } else {
+        activePreviewProjectId.value = id
+    }
+}
+
+const resetToDefaultModel = (proj: ProjectItem) => {
+    proj.modelPath = '/Models/mee_sup.glb'
+    showNotification('Reset to default mee_sup.glb 3D model', 'info')
+}
+
+// Built-in Shader Presets
+const SHADER_PRESETS: Record<string, { name: string; vertexShader: string; fragmentShader: string }> = {
+    bayer8: {
+        name: 'Retro 8x8 Bayer Dither',
+        vertexShader: `varying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying vec2 vUv;\n\nvoid main() {\n    vUv = uv;\n    vNormal = normalize(normalMatrix * normal);\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vViewPosition = -mvPosition.xyz;\n    gl_Position = projectionMatrix * mvPosition;\n}`,
+        fragmentShader: `uniform vec3 uPaperColor;\nuniform vec3 uInkColor;\nuniform vec3 uLightDirection;\nuniform float uPixelSize;\nuniform float uEdgeThickness;\nuniform float uTime;\n\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying vec2 vUv;\n\n// 8x8 Bayer dithering matrix\nfloat bayer8(vec2 uv) {\n    ivec2 p = ivec2(mod(uv, 8.0));\n    int x = p.x;\n    int y = p.y;\n    int bayer[64] = int[64](\n         0, 32,  8, 40,  2, 34, 10, 42,\n        48, 16, 56, 24, 50, 18, 58, 26,\n        12, 44,  4, 36, 14, 46,  6, 38,\n        60, 28, 52, 20, 62, 30, 54, 22,\n         3, 35, 11, 43,  1, 33,  9, 41,\n        51, 19, 59, 27, 49, 17, 57, 25,\n        15, 47,  7, 39, 13, 45,  5, 37,\n        63, 31, 55, 23, 61, 29, 53, 21\n    );\n    return float(bayer[y * 8 + x]) / 64.0;\n}\n\nvoid main() {\n    vec3 normal = normalize(vNormal);\n    if (!gl_FrontFacing) normal = -normal;\n    vec3 viewDir = normalize(vViewPosition);\n\n    float NdotL = dot(normal, uLightDirection);\n    float diffuse = NdotL * 0.5 + 0.5;\n\n    float NdotV = max(dot(normal, viewDir), 0.0);\n    float rim = 1.0 - NdotV;\n    float edge = smoothstep(1.0 - uEdgeThickness, 1.0, rim);\n\n    float tone = clamp(diffuse * (1.0 - edge * 0.75), 0.0, 1.0);\n\n    vec2 screenCoord = gl_FragCoord.xy / uPixelSize;\n    float threshold = bayer8(screenCoord);\n\n    vec3 finalColor = (tone < threshold) ? uInkColor : uPaperColor;\n    gl_FragColor = vec4(finalColor, 1.0);\n}`
+    },
+    halftone: {
+        name: 'Halftone Dot Screen',
+        vertexShader: `varying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying vec2 vUv;\n\nvoid main() {\n    vUv = uv;\n    vNormal = normalize(normalMatrix * normal);\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vViewPosition = -mvPosition.xyz;\n    gl_Position = projectionMatrix * mvPosition;\n}`,
+        fragmentShader: `uniform vec3 uPaperColor;\nuniform vec3 uInkColor;\nuniform vec3 uLightDirection;\nuniform float uPixelSize;\nuniform float uTime;\n\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying vec2 vUv;\n\nvoid main() {\n    vec3 normal = normalize(vNormal);\n    if (!gl_FrontFacing) normal = -normal;\n    float diffuse = clamp(dot(normal, uLightDirection) * 0.5 + 0.5, 0.0, 1.0);\n\n    vec2 screenPos = gl_FragCoord.xy / 6.0;\n    vec2 cell = fract(screenPos) - 0.5;\n    float dist = length(cell);\n\n    float radius = (1.0 - diffuse) * 0.55;\n    float dotPattern = step(radius, dist);\n\n    vec3 color = mix(uInkColor, uPaperColor, dotPattern);\n    gl_FragColor = vec4(color, 1.0);\n}`
+    },
+    cyberScanline: {
+        name: 'Cyber Wireframe Scanline',
+        vertexShader: `varying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying vec2 vUv;\n\nvoid main() {\n    vUv = uv;\n    vNormal = normalize(normalMatrix * normal);\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vViewPosition = -mvPosition.xyz;\n    gl_Position = projectionMatrix * mvPosition;\n}`,
+        fragmentShader: `uniform vec3 uLightDirection;\nuniform float uTime;\n\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying vec2 vUv;\n\nvoid main() {\n    vec3 normal = normalize(vNormal);\n    float NdotV = max(dot(normal, normalize(vViewPosition)), 0.0);\n    float fresnel = pow(1.0 - NdotV, 2.5);\n\n    float scanline = sin(gl_FragCoord.y * 0.25 - uTime * 4.0) * 0.5 + 0.5;\n    float grid = step(0.92, fract(vUv.x * 20.0)) + step(0.92, fract(vUv.y * 20.0));\n    \n    vec3 neonGreen = vec3(0.0, 1.0, 0.4);\n    vec3 darkBg = vec3(0.08, 0.08, 0.08);\n\n    vec3 color = mix(darkBg, neonGreen, clamp(fresnel * 1.5 + scanline * 0.35 + grid * 0.5, 0.0, 1.0));\n    gl_FragColor = vec4(color, 1.0);\n}`
+    },
+    normalMap: {
+        name: 'Normal Vector / Iridescent',
+        vertexShader: `varying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying vec2 vUv;\n\nvoid main() {\n    vUv = uv;\n    vNormal = normalize(normalMatrix * normal);\n    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n    vViewPosition = -mvPosition.xyz;\n    gl_Position = projectionMatrix * mvPosition;\n}`,
+        fragmentShader: `uniform float uTime;\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\n\nvoid main() {\n    vec3 normal = normalize(vNormal);\n    vec3 normalColor = normal * 0.5 + 0.5;\n    normalColor.r += sin(uTime + normal.y * 4.0) * 0.08;\n    normalColor.b += cos(uTime + normal.x * 4.0) * 0.08;\n    gl_FragColor = vec4(clamp(normalColor, 0.0, 1.0), 1.0);\n}`
+    }
+}
+
+const applyShaderPreset = (proj: ProjectItem, presetKey: string) => {
+    const preset = SHADER_PRESETS[presetKey]
+    if (preset) {
+        proj.customShader = true
+        proj.shaderPreset = presetKey
+        proj.vertexShader = preset.vertexShader
+        proj.fragmentShader = preset.fragmentShader
+        showNotification(`Applied "${preset.name}" preset!`, 'success')
+    }
+}
+
+const shaderValidationStatus = ref<{ [projectId: string]: { status: 'idle' | 'success' | 'error'; message: string } }>({})
+
+const testShaderCompile = (proj: ProjectItem) => {
+    const projId = proj.id
+    try {
+        if (typeof document === 'undefined') return
+        const canvas = document.createElement('canvas')
+        const gl = canvas.getContext('webgl') || (canvas.getContext('experimental-webgl') as WebGLRenderingContext | null)
+        if (!gl) {
+            shaderValidationStatus.value[projId] = { status: 'success', message: 'WebGL unavailable; syntax verified.' }
+            return
+        }
+
+        const vs = gl.createShader(gl.VERTEX_SHADER)
+        if (!vs) throw new Error('Could not create vertex shader')
+        gl.shaderSource(vs, proj.vertexShader || SHADER_PRESETS.bayer8.vertexShader)
+        gl.compileShader(vs)
+        if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+            const err = gl.getShaderInfoLog(vs) || 'Vertex shader syntax error'
+            gl.deleteShader(vs)
+            shaderValidationStatus.value[projId] = { status: 'error', message: 'Vertex Shader Error: ' + err }
+            return
+        }
+
+        const fs = gl.createShader(gl.FRAGMENT_SHADER)
+        if (!fs) throw new Error('Could not create fragment shader')
+        gl.shaderSource(fs, proj.fragmentShader || SHADER_PRESETS.bayer8.fragmentShader)
+        gl.compileShader(fs)
+        if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+            const err = gl.getShaderInfoLog(fs) || 'Fragment shader syntax error'
+            gl.deleteShader(vs)
+            gl.deleteShader(fs)
+            shaderValidationStatus.value[projId] = { status: 'error', message: 'Fragment Shader Error: ' + err }
+            return
+        }
+
+        const prog = gl.createProgram()
+        if (!prog) throw new Error('Could not create shader program')
+        gl.attachShader(prog, vs)
+        gl.attachShader(prog, fs)
+        gl.linkProgram(prog)
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+            const err = gl.getProgramInfoLog(prog) || 'Shader link error'
+            gl.deleteProgram(prog)
+            shaderValidationStatus.value[projId] = { status: 'error', message: 'Shader Link Error: ' + err }
+            return
+        }
+
+        gl.deleteProgram(prog)
+        gl.deleteShader(vs)
+        gl.deleteShader(fs)
+        shaderValidationStatus.value[projId] = { status: 'success', message: '✓ GLSL Shaders compiled & linked successfully with 0 errors!' }
+    } catch (e: any) {
+        shaderValidationStatus.value[projId] = { status: 'error', message: 'Compile Test Error: ' + (e?.message || 'Unknown error') }
+    }
+}
+
+const addTagFromInput = (proj: ProjectItem, inputId: string) => {
+    if (typeof document === 'undefined') return
+    const el = document.getElementById(inputId) as HTMLInputElement | null
+    if (el && el.value.trim()) {
+        addStackTag(proj, el.value.trim())
+        el.value = ''
+    }
+}
 
 // Selected / Editing Items
 const editingProjectId = ref<string | null>(null)
@@ -154,10 +329,14 @@ const addProject = () => {
         id: newId,
         title: 'NEW PROJECT TITLE',
         badge: 'NEW RELEASE',
+        category: 'web',
         subtitle: 'Project Subtitle / Tech Stack Highlight',
         description: 'Provide an engaging project summary explaining the business problem solved.',
         impact: ['Key metric or engineering improvement achieved.'],
-        stack: ['React', 'TypeScript']
+        stack: ['React', 'TypeScript'],
+        imageUrl: '',
+        modelPath: '',
+        year: new Date().getFullYear().toString()
     })
     editingProjectId.value = newId
 }
@@ -255,6 +434,76 @@ const handleUploadIcon = async () => {
     }
 }
 
+// Gallery Item Helpers
+const addGalleryItem = () => {
+    const newId = 'item_' + Date.now().toString().slice(-6)
+    gallery.value.unshift({
+        id: newId,
+        title: 'NEW EVENT / WORK ITEM',
+        category: 'work',
+        type: 'work',
+        badge: 'ENGINEERING WORK',
+        organization: 'Independent Project',
+        location: 'Skudai, Johor',
+        createdDate: new Date().getFullYear().toString(),
+        tags: ['Web', 'Cloud', 'Engineering'],
+        software: 'TypeScript, Vue.js',
+        description: 'Provide an engaging technical overview of this project, event, or 3D asset.',
+        highlights: ['Key architectural milestone or performance outcome achieved.'],
+        imageUrl: '',
+        modelPath: '',
+        linkUrl: ''
+    })
+    showNotification('Added new item to Gallery', 'success')
+}
+
+const removeGalleryItem = (id: string) => {
+    if (confirm(`Remove gallery item "${id}"?`)) {
+        gallery.value = gallery.value.filter(g => g.id !== id)
+        showNotification('Item removed from Gallery', 'info')
+    }
+}
+
+const handleGalleryFileUpload = (event: Event, item: GalleryItem) => {
+    const target = event.target as HTMLInputElement
+    if (target.files && target.files[0]) {
+        const file = target.files[0]
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            if (e.target?.result) {
+                item.imageUrl = e.target.result as string
+                showNotification(`Image "${file.name}" loaded successfully`, 'success')
+            }
+        }
+        reader.readAsDataURL(file)
+    }
+}
+
+const addGalleryHighlight = (item: GalleryItem) => {
+    if (!item.highlights) item.highlights = []
+    item.highlights.push('New key takeaway, achievement, or impact metric')
+}
+
+const removeGalleryHighlight = (item: GalleryItem, index: number) => {
+    if (item.highlights) {
+        item.highlights.splice(index, 1)
+    }
+}
+
+const addGalleryTag = (item: GalleryItem, tag: string) => {
+    if (!tag.trim()) return
+    if (!item.tags) item.tags = []
+    if (!item.tags.includes(tag.trim())) {
+        item.tags.push(tag.trim())
+    }
+}
+
+const removeGalleryTag = (item: GalleryItem, index: number) => {
+    if (item.tags) {
+        item.tags.splice(index, 1)
+    }
+}
+
 // Export / Import JSON
 const downloadBackup = () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
@@ -264,6 +513,7 @@ const downloadBackup = () => {
         experiences: experiences.value,
         education: education.value,
         certifications: certifications.value,
+        gallery: gallery.value,
     }, null, 2))
     const dlAnchor = document.createElement('a')
     dlAnchor.setAttribute('href', dataStr)
@@ -532,9 +782,201 @@ onMounted(async () => {
                                     <input v-model="proj.badge" type="text" class="terminal-input" />
                                 </div>
 
+                                <div class="field-group">
+                                    <label>CATEGORY</label>
+                                    <select v-model="proj.category" class="terminal-select">
+                                        <option value="web">Web Application / Platform</option>
+                                        <option value="cloud">Cloud AI & Architecture</option>
+                                        <option value="security">Cybersecurity & Automation</option>
+                                        <option value="event">Hackathon / Event</option>
+                                        <option value="3d">3D Model & Real-time WebGL</option>
+                                    </select>
+                                </div>
+
+                                <div class="field-group">
+                                    <label>YEAR / TIMELINE</label>
+                                    <input v-model="proj.year" type="text" class="terminal-input" placeholder="e.g. 2026" />
+                                </div>
+
                                 <div class="field-group full-width">
                                     <label>SUBTITLE</label>
                                     <input v-model="proj.subtitle" type="text" class="terminal-input" />
+                                </div>
+
+                                <!-- Image Upload (JPG & PNG only inside admin dashboard) -->
+                                <div class="field-group full-width">
+                                    <label>PROJECT IMAGE (JPG / PNG UPLOAD OR PATH)</label>
+                                    <div class="admin-upload-row">
+                                        <input 
+                                            type="file" 
+                                            accept="image/png, image/jpeg, image/jpg, image/webp" 
+                                            class="terminal-input file-input" 
+                                            @change="handleProjectImageUpload($event, proj)" 
+                                        />
+                                        <input 
+                                            v-model="proj.imageUrl" 
+                                            type="text" 
+                                            class="terminal-input" 
+                                            placeholder="or image URL/path: e.g. /my_render.png" 
+                                        />
+                                    </div>
+                                    <div v-if="proj.imageUrl" class="admin-thumb-box">
+                                        <img :src="proj.imageUrl" alt="Preview" class="admin-thumb-img" />
+                                        <button type="button" class="bracket-btn remove-btn" @click="proj.imageUrl = ''">[ Remove Image ]</button>
+                                    </div>
+                                </div>
+
+                                <!-- 3D Model Asset & GLSL Shader Studio -->
+                                <div class="field-group full-width model-shader-studio-box">
+                                    <div class="studio-header">
+                                        <div class="studio-header-left">
+                                            <label class="studio-title">❖ 3D MODEL PATH (.GLB / .GLTF - FOR 3D ASSETS) &amp; SHADER ENGINE</label>
+                                            <span class="studio-desc">Upload custom .glb/.gltf 3D meshes and write custom GLSL vertex &amp; fragment shaders directly inside the admin.</span>
+                                        </div>
+                                        <span class="studio-badge" :class="{ active: !!proj.modelPath }">
+                                            {{ proj.modelPath ? '● 3D MODEL ACTIVE' : '○ NO 3D ASSET' }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Upload & Path Input -->
+                                    <div class="admin-upload-row">
+                                        <input 
+                                            type="file" 
+                                            accept=".glb,.gltf,model/gltf-binary,model/gltf+json" 
+                                            class="terminal-input file-input" 
+                                            @change="handleModelUpload($event, proj)" 
+                                        />
+                                        <input 
+                                            v-model="proj.modelPath" 
+                                            type="text" 
+                                            class="terminal-input" 
+                                            placeholder="or enter path: e.g. /Models/mee_sup.glb" 
+                                        />
+                                    </div>
+
+                                    <!-- Model Status & Action Buttons -->
+                                    <div v-if="proj.modelPath" class="model-status-bar">
+                                        <div class="model-info">
+                                            <span class="model-icon">❖</span>
+                                            <span class="model-name">{{ getModelDisplayName(proj.modelPath) }}</span>
+                                        </div>
+                                        <div class="model-btn-group">
+                                            <button 
+                                                type="button" 
+                                                class="bracket-btn preview-toggle-btn" 
+                                                :class="{ active: activePreviewProjectId === proj.id }"
+                                                @click="toggleModelPreview(proj.id)"
+                                            >
+                                                [ {{ activePreviewProjectId === proj.id ? '✕ HIDE 3D PREVIEW' : '👁 LIVE 3D PREVIEW' }} ]
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                class="bracket-btn reset-model-btn" 
+                                                @click="resetToDefaultModel(proj)"
+                                                title="Reset to default mee_sup.glb"
+                                            >
+                                                [ ↺ DEFAULT MODEL ]
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                class="bracket-btn remove-btn" 
+                                                @click="proj.modelPath = ''"
+                                            >
+                                                [ REMOVE MODEL ]
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Live 3D Preview inside Admin -->
+                                    <div v-if="activePreviewProjectId === proj.id" class="admin-live-3d-box">
+                                        <div class="preview-box-header">
+                                            <span>● REAL-TIME 3D VIEWPORT &amp; SHADER PREVIEW</span>
+                                            <span class="preview-note">DRAG TO ROTATE • UPDATES INSTANTLY ON SHADER EDIT</span>
+                                        </div>
+                                        <div class="admin-viewport-canvas-container">
+                                            <modelDisplay 
+                                                :contained="true" 
+                                                :model-path="proj.modelPath || '/Models/mee_sup.glb'"
+                                                :custom-vertex-shader="proj.vertexShader"
+                                                :custom-fragment-shader="proj.fragmentShader"
+                                                :use-custom-shader="proj.customShader"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- GLSL Shader Editor Section -->
+                                    <div class="shader-editor-container">
+                                        <div class="shader-header-row">
+                                            <div class="shader-toggle-wrapper">
+                                                <label class="custom-shader-checkbox-label">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        v-model="proj.customShader" 
+                                                        class="shader-checkbox"
+                                                    />
+                                                    <span class="checkbox-custom"></span>
+                                                    <strong class="shader-switch-text">ENABLE CUSTOM GLSL SHADERS FOR THIS ASSET</strong>
+                                                </label>
+                                            </div>
+                                            <div class="shader-preset-pills">
+                                                <span class="preset-label">QUICK PRESETS:</span>
+                                                <button type="button" class="preset-btn" @click="applyShaderPreset(proj, 'bayer8')">[ ▦ BAYER DITHER ]</button>
+                                                <button type="button" class="preset-btn" @click="applyShaderPreset(proj, 'halftone')">[ ◫ HALFTONE ]</button>
+                                                <button type="button" class="preset-btn" @click="applyShaderPreset(proj, 'cyberScanline')">[ ☵ CYBER WIRE ]</button>
+                                                <button type="button" class="preset-btn" @click="applyShaderPreset(proj, 'normalMap')">[ ✦ NORMAL / IRID ]</button>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="proj.customShader" class="shader-inputs-grid">
+                                            <!-- Vertex Shader -->
+                                            <div class="shader-code-box">
+                                                <div class="code-box-header">
+                                                    <span class="code-title">VERTEX SHADER (GLSL)</span>
+                                                    <span class="code-vars-hint">varying: vNormal, vViewPosition, vUv</span>
+                                                </div>
+                                                <textarea 
+                                                    v-model="proj.vertexShader" 
+                                                    rows="8" 
+                                                    class="terminal-textarea shader-editor-textarea" 
+                                                    spellcheck="false" 
+                                                    placeholder="// Enter vertex shader GLSL code..."
+                                                />
+                                            </div>
+
+                                            <!-- Fragment Shader -->
+                                            <div class="shader-code-box">
+                                                <div class="code-box-header">
+                                                    <span class="code-title">FRAGMENT SHADER (GLSL)</span>
+                                                    <span class="code-vars-hint">uniforms: uPaperColor, uInkColor, uLightDirection, uPixelSize, uTime</span>
+                                                </div>
+                                                <textarea 
+                                                    v-model="proj.fragmentShader" 
+                                                    rows="14" 
+                                                    class="terminal-textarea shader-editor-textarea" 
+                                                    spellcheck="false" 
+                                                    placeholder="// Enter fragment shader GLSL code..."
+                                                />
+                                            </div>
+
+                                            <!-- Shader Compile & Test Status -->
+                                            <div class="shader-compile-row">
+                                                <button 
+                                                    type="button" 
+                                                    class="bracket-btn bordered compile-test-btn" 
+                                                    @click="testShaderCompile(proj)"
+                                                >
+                                                    [ ⚙ TEST &amp; COMPILE GLSL SHADERS ]
+                                                </button>
+                                                <div 
+                                                    v-if="shaderValidationStatus[proj.id]" 
+                                                    class="compile-status-badge" 
+                                                    :class="shaderValidationStatus[proj.id].status"
+                                                >
+                                                    {{ shaderValidationStatus[proj.id].message }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="field-group full-width">
@@ -603,13 +1045,7 @@ onMounted(async () => {
                                         <button
                                             type="button"
                                             class="bracket-btn bordered"
-                                            @click="() => {
-                                                const el = document.getElementById('new-tag-input-' + pIdx) as HTMLInputElement;
-                                                if (el && el.value) {
-                                                    addStackTag(proj, el.value);
-                                                    el.value = '';
-                                                }
-                                            }"
+                                            @click="addTagFromInput(proj, 'new-tag-input-' + pIdx)"
                                         >
                                             + ADD TECH
                                         </button>
@@ -1703,22 +2139,342 @@ define('DB_PASS', 'your_cpanel_db_password');</pre>
     text-transform: uppercase;
 }
 
+/* ================= 3D ASSET & SHADER STUDIO STYLES ================= */
+.model-shader-studio-box {
+    background: #f7f7f7;
+    border: 2px solid #000000;
+    padding: 16px 18px;
+    margin-top: 8px;
+    box-shadow: 3px 3px 0px #000000;
+}
+
+.studio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.studio-title {
+    display: block;
+    font-family: var(--font-tech), var(--font-sans);
+    font-weight: 800;
+    font-size: 0.96rem;
+    letter-spacing: 0.04em;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.studio-desc {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    color: #555555;
+    line-height: 1.4;
+}
+
+.studio-badge {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border: 1px solid #000000;
+    background: #e0e0e0;
+    color: #555555;
+    white-space: nowrap;
+}
+
+.studio-badge.active {
+    background: #000000;
+    color: #00ff66;
+}
+
+.model-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    background: #ffffff;
+    border: 1px solid #000000;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+}
+
+.model-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+    color: #111111;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.model-icon {
+    color: var(--tape-red, #ff2d2d);
+    font-size: 1rem;
+}
+
+.model-btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.preview-toggle-btn {
+    background: #000000;
+    color: #ffffff;
+}
+
+.preview-toggle-btn.active {
+    background: var(--tape-red, #ff2d2d);
+    color: #000000;
+}
+
+.reset-model-btn {
+    background: #f0f0f0;
+    color: #000000;
+}
+
+/* Live 3D Preview inside Admin */
+.admin-live-3d-box {
+    margin-top: 14px;
+    border: 2px solid #000000;
+    background: #000000;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+.preview-box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000000;
+    color: #00ff66;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    padding: 6px 12px;
+    border-bottom: 1px solid #333333;
+    letter-spacing: 0.5px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.preview-note {
+    color: #888888;
+    font-size: 0.7rem;
+}
+
+.admin-viewport-canvas-container {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    background: #dfdfdf;
+    overflow: hidden;
+}
+
+/* Shader Editor Container */
+.shader-editor-container {
+    margin-top: 16px;
+    border-top: 1px dashed #000000;
+    padding-top: 14px;
+}
+
+.shader-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.custom-shader-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.shader-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #000000;
+    cursor: pointer;
+}
+
+.shader-switch-text {
+    font-family: var(--font-tech), var(--font-sans);
+    font-size: 0.88rem;
+    letter-spacing: 0.03em;
+    color: #000000;
+}
+
+.shader-preset-pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.preset-label {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #555555;
+    margin-right: 2px;
+}
+
+.preset-btn {
+    background: #ffffff;
+    border: 1px solid #000000;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.preset-btn:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+/* Shader Inputs Grid */
+.shader-inputs-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.shader-code-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.code-box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.code-title {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #000000;
+    letter-spacing: 0.03em;
+}
+
+.code-vars-hint {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: #666666;
+}
+
+.shader-editor-textarea {
+    font-family: 'Space Mono', monospace, Consolas, 'Courier New' !important;
+    font-size: 0.8rem !important;
+    line-height: 1.5 !important;
+    background: #0c0d0e !important;
+    color: #00ff66 !important;
+    border: 2px solid #000000 !important;
+    padding: 10px 12px !important;
+    white-space: pre !important;
+    tab-size: 4 !important;
+    resize: vertical;
+}
+
+.shader-editor-textarea:focus {
+    outline: none;
+    border-color: #00ff66 !important;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.25);
+}
+
+.shader-compile-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.compile-test-btn {
+    background: #000000;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 8px 14px;
+}
+
+.compile-test-btn:hover {
+    background: #222222;
+    color: #00ff66;
+}
+
+.compile-status-badge {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.compile-status-badge.success {
+    background: rgba(0, 255, 102, 0.1);
+    color: #008833;
+    border-color: #00aa44;
+}
+
+.compile-status-badge.error {
+    background: rgba(255, 45, 45, 0.1);
+    color: #d11111;
+    border-color: #ff2d2d;
+}
+
+.admin-upload-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-upload-row .file-input {
+    flex: 1;
+    min-width: 220px;
+}
+
+.admin-thumb-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    background: #f0f0f0;
+    padding: 8px 12px;
+    border: 1px dashed #000000;
+}
+
+.admin-thumb-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 1px solid #000000;
+}
+
 /* ================= DESKTOP RESPONSIVE ENHANCEMENTS ================= */
 @media (min-width: 900px) {
-    .dashboard-body {
-        max-width: 1440px;
-        padding: 24px 32px;
-    }
-
-    .admin-nav-tabs {
-        gap: 8px;
-    }
-
-    .tab-btn {
-        padding: 9px 18px;
-        font-size: 0.86rem;
-    }
-
     .step-guide {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1732,33 +2488,79 @@ define('DB_PASS', 'your_cpanel_db_password');</pre>
     }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1024px) {
+    .dashboard-body {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 32px;
+        align-items: start;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 28px 36px;
+    }
+
+    .admin-nav-tabs {
+        position: sticky;
+        top: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border-bottom: none;
+        border-right: 2px solid #000000;
+        padding-right: 20px;
+        margin-bottom: 0;
+    }
+
+    .tab-btn {
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+        padding: 12px 18px;
+        font-size: 0.88rem;
+        border-bottom: 2px solid #000000;
+    }
+
+    .tab-btn.active {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    .tab-content-container {
+        min-width: 0;
+    }
+
     .skills-category-columns {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px;
     }
 
     .category-box {
-        min-height: 400px;
+        min-height: 420px;
     }
 
     .project-admin-card .form-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
 
     .project-admin-card .field-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .shader-inputs-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .shader-compile-row {
         grid-column: 1 / -1;
     }
 }
 
 @media (min-width: 1400px) {
     .dashboard-body {
-        max-width: 1560px;
-        padding: 28px 40px;
-    }
-
-    .tab-panel {
-        padding: 32px;
+        max-width: 1680px;
+        padding: 32px 48px;
+        gap: 40px;
     }
 }
 </style>

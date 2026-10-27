@@ -1,8 +1,8 @@
 -- ==========================================================
 -- PORTFOLIO DATABASE SCHEMA & SEED DATA
 -- Muhammad Iman Hakimi - Web & Cloud Developer
--- Compatible with MySQL 5.7+ / MariaDB 10.3+ (cPanel & Plesk)
--- Import this file in phpMyAdmin -> Import tab
+-- Compatible with MySQL 5.7+ / MariaDB 10.3+ (cPanel, Plesk, Localhost)
+-- Import this file in phpMyAdmin -> SQL or Import tab
 -- ==========================================================
 
 SET NAMES utf8mb4;
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
 -- Initial admin account:
 -- Username: admin
 -- Password: Keko66$$&9
--- Hash generated using password_hash('Keko66$$&9', PASSWORD_BCRYPT)
+-- (Generated using password_hash('Keko66$$&9', PASSWORD_BCRYPT))
 INSERT INTO `admin_users` (`id`, `username`, `password_hash`) VALUES
 (1, 'admin', '$2y$10$v8nTqIPUQr4yZwGpEkP8j.WYWmNCvT8YvQJLLT0dRGqsbfekpeVkS')
 ON DUPLICATE KEY UPDATE `password_hash` = VALUES(`password_hash`);
@@ -59,54 +59,104 @@ INSERT INTO `profile_info` (`id`, `full_name`, `role_title`, `location`, `status
 ON DUPLICATE KEY UPDATE `full_name` = VALUES(`full_name`);
 
 -- ----------------------------------------------------------
--- 3. Table structure for projects
+-- 3. Table structure for projects (Includes 3D Models & GLSL Shaders)
 -- ----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `projects` (
   `id` VARCHAR(60) NOT NULL PRIMARY KEY,
   `title` VARCHAR(150) NOT NULL,
   `badge` VARCHAR(100) NOT NULL,
   `subtitle` VARCHAR(255) NOT NULL,
+  `category` VARCHAR(50) NOT NULL DEFAULT 'web',
   `description` TEXT NOT NULL,
   `impact_bullets` TEXT NOT NULL,
   `stack_tags` TEXT NOT NULL,
+  `image_url` LONGTEXT NULL,
+  `model_path` LONGTEXT NULL,
+  `custom_shader` TINYINT(1) NOT NULL DEFAULT 0,
+  `vertex_shader` MEDIUMTEXT NULL,
+  `fragment_shader` MEDIUMTEXT NULL,
+  `year` VARCHAR(20) NOT NULL DEFAULT '2026',
   `display_order` INT NOT NULL DEFAULT 0,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `projects` (`id`, `title`, `badge`, `subtitle`, `description`, `impact_bullets`, `stack_tags`, `display_order`) VALUES
+INSERT INTO `projects` (`id`, `title`, `badge`, `subtitle`, `category`, `description`, `impact_bullets`, `stack_tags`, `image_url`, `model_path`, `custom_shader`, `vertex_shader`, `fragment_shader`, `year`, `display_order`) VALUES
 ('siswa-rent',
  'SISWA-RENT',
  'HACKATHON SUBMISSION',
  'Student Housing Discovery Platform',
+ 'web',
  'Siswa-Rent solves a practical, high-frequency problem: student housing discovery. It directly addresses the gap between how students naturally search and how current platforms force them to search.',
  'Reduced coding errors using TypeScript for safer, more reliable architecture.\nArchitected database with PostgreSQL / Supabase, saving 2-3 hours weekly through clear documentation.',
  'React,TypeScript,HTML/CSS,PostgreSQL,Supabase',
+ '',
+ '',
+ 0,
+ NULL,
+ NULL,
+ '2026',
  1),
 ('malware-detection',
  'CSV MALWARE DETECTION',
  'SECURITY & AUTOMATION',
  'Automated Antivirus Dashboard Engine',
+ 'security',
  'A security system that detects malware embedded in uploaded CSV files using the ClamAV antivirus engine and displays telemetry in an administrative dashboard.',
  'Significantly reduced human error while reducing manual labor for office personnel.\nContainerized scanning queues using Docker with ASP.NET Core backend.',
  'ASP.NET Core,MySQL,Docker,ClamAV,jQuery,Bootstrap',
+ '',
+ '',
+ 0,
+ NULL,
+ NULL,
+ '2026',
  2),
 ('polycc-llm',
  'POLYCC LLM LEAGUE',
  'AI & CLOUD',
  'LLaMA 3 Fine-Tuning on AWS SageMaker',
+ 'cloud',
  'Engineered custom AI training and inference workflows using LLaMA 3 under competitive cloud scenarios, generating new iterations of datasets for fine-tuning.',
  'Deployed scalable LLaMA 3 models inside AWS SageMaker AI cloud environments.\nAutomated dataset pipeline iterations and prompt evaluation workflows.',
  'Python,LLaMA 3,AWS SageMaker,PyTorch,DataPrep',
+ '',
+ '',
+ 0,
+ NULL,
+ NULL,
+ '2026',
  3),
 ('data-hackathon',
  'DATAHACKATHON 2024',
  'TOP 4 FINISH',
  'National Business Intelligence Analytics',
+ 'event',
  'Secured Top 4 national finish through interactive dataset preparation, predictive analytics, and executive dashboarding presented directly to industry judges.',
  'Built visual analytics dashboards using Google Looker Studio and Power BI.\nDelivered live technical findings to a professional evaluation panel.',
  'Google Looker Studio,Power BI,Google Sheets,Data Analytics',
- 4)
-ON DUPLICATE KEY UPDATE `title` = VALUES(`title`);
+ '',
+ '',
+ 0,
+ NULL,
+ NULL,
+ '2024',
+ 4),
+('mee-sup-3d',
+ 'MEE SUP STYLIZED 3D FOOD ASSET',
+ 'REAL-TIME 3D MODEL',
+ 'Real-Time Three.js WebGL & Custom Dither Shading',
+ '3d',
+ 'Interactive low-poly stylized Malaysian noodle soup bowl featuring beef balls, boiled egg, broth, and chopsticks. Rendered in real-time using custom pen-and-ink stipple and dither shaders with Draco mesh compression.',
+ 'Engineered custom GLSL Bayer dithering shader reproducing retro print stippling.\nImplemented Draco 1.5.6 geometry compression for rapid WebGL loads under 300KB.\nStrictly contained 3D viewport without blocking page scroll gestures.',
+ 'Three.js,Draco GLTF,GLSL Dither Shader,Blender',
+ '',
+ '/Models/mee_sup.glb',
+ 1,
+ NULL,
+ NULL,
+ '2026',
+ 5)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `model_path` = VALUES(`model_path`), `custom_shader` = VALUES(`custom_shader`);
 
 -- ----------------------------------------------------------
 -- 4. Table structure for skills

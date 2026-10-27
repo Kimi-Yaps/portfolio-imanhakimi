@@ -22,25 +22,6 @@ const navigateToRoute = (path: string) => {
                 <img src="/Star.svg" alt="Star Logo" class="brand-star" />
                 <span class="brand-text">[ IMANHAKIMI.COM ]</span>
             </a>
-
-            <!-- Navigation Links with crawlable anchor tags -->
-            <div class="nav-links">
-                <a href="/projects" class="bracket-btn nav-link-item" :class="{ active: route.path === '/projects' }" @click.prevent="navigateToRoute('/projects')">
-                    [ PROJECTS ]
-                </a>
-                <a href="/about" class="bracket-btn nav-link-item hide-mobile" :class="{ active: route.path === '/about' }" @click.prevent="navigateToRoute('/about')">
-                    [ ABOUT ]
-                </a>
-                <a href="/gallery" class="bracket-btn nav-link-item hide-mobile" :class="{ active: route.path === '/gallery' }" @click.prevent="navigateToRoute('/gallery')">
-                    [ GALLERY ]
-                </a>
-                <a href="/blog" class="bracket-btn nav-link-item hide-mobile" :class="{ active: route.path === '/blog' }" @click.prevent="navigateToRoute('/blog')">
-                    [ BLOG ]
-                </a>
-                <a href="mailto:hakimiiman342ab@gmail.com" class="bracket-btn highlight-link">
-                    [ HIRE ME ↗ ]
-                </a>
-            </div>
         </nav>
     </header>
 </template>
@@ -110,27 +91,6 @@ const navigateToRoute = (path: string) => {
 }
 
 .nav-link-item.active {
-    background-color: #000000;
-    color: #ffffff;
-}
-
-@media (max-width: 768px) {
-    .hide-mobile {
-        display: none !important;
-    }
-}
-
-.highlight-link {
-    background-color: var(--tape-red);
-    color: #000000;
-    border: 1px solid #000000;
-    font-weight: 700;
-    font-size: clamp(0.75rem, 2.8vw, 0.88rem);
-    padding: 4px clamp(8px, 2vw, 12px);
-    white-space: nowrap;
-}
-
-.highlight-link:hover {
     background-color: #000000;
     color: #ffffff;
 }

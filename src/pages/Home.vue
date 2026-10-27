@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Navbar from '../components/navbar.vue'
 import modelDisplay from '../components/modelDisplay.vue'
 import { usePixelTransition } from '../composables/usePixelTransition'
 import { usePortfolioData } from '../composables/usePortfolioData'
 
+const router = useRouter()
 const { triggerPixelTransition } = usePixelTransition()
+
+const navigateTo = (path: string) => {
+    triggerPixelTransition(() => {
+        router.push(path)
+    })
+}
 const {
     profile,
     projects,
@@ -81,7 +89,6 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <!-- Bottom-Left: Menu with Crawlable Arrow Links -->
             <nav class="left-arrow-menu" aria-label="Portfolio navigation">
                 <a href="/about" class="nav-arrow-link" @click.prevent="openSection('about')">
                     → ABOUT_ME

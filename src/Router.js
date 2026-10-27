@@ -4,7 +4,6 @@ import { createWebHistory, createRouter } from 'vue-router'
 const Home = () => import('./pages/Home.vue')
 const Projects = () => import('./pages/Projects.vue')
 const About = () => import('./pages/About.vue')
-const Gallery = () => import('./pages/Gallery.vue')
 const Blog = () => import('./pages/Blog.vue')
 const Admin = () => import('./pages/Admin.vue')
 
@@ -28,8 +27,8 @@ const router = createRouter({
       name: 'Projects',
       component: Projects,
       meta: {
-        title: 'All Projects & Case Studies | Muhammad Iman Hakimi',
-        description: 'Explore full-stack, cloud AI, and cybersecurity projects by Muhammad Iman Hakimi, including Siswa-Rent, CSV Malware Detection, and PolyCC LLM League.',
+        title: 'My Work & Projects | Muhammad Iman Hakimi',
+        description: 'Explore full-stack web applications, cloud AI systems, cybersecurity solutions, and real-time 3D assets by Muhammad Iman Hakimi.',
         canonical: `${SITE_URL}/projects`,
       }
     },
@@ -41,16 +40,6 @@ const router = createRouter({
         title: 'About Muhammad Iman Hakimi | Bio, Education & Skills',
         description: 'Learn more about Muhammad Iman Hakimi - Web & Cloud Developer in Skudai, Johor. Background in software engineering, cloud computing, and AI hackathon achievements.',
         canonical: `${SITE_URL}/about`,
-      }
-    },
-    {
-      path: '/gallery',
-      name: 'Gallery',
-      component: Gallery,
-      meta: {
-        title: 'Visual Gallery & 3D Interactive Design | Muhammad Iman Hakimi',
-        description: 'Interactive 3D visuals, dithered retro pen-and-ink shaders, and creative digital designs by Muhammad Iman Hakimi.',
-        canonical: `${SITE_URL}/gallery`,
       }
     },
     {
@@ -72,6 +61,17 @@ const router = createRouter({
         description: 'Administrative terminal portal.',
         robots: 'noindex, nofollow',
         canonical: `${SITE_URL}/admin`,
+      }
+    },
+    {
+      path: '/database',
+      name: 'Database',
+      component: Admin,
+      meta: {
+        title: 'Database Management | Iman Hakimi',
+        description: 'Portfolio database administration and content management portal.',
+        robots: 'noindex, nofollow',
+        canonical: `${SITE_URL}/database`,
       }
     },
   ],
