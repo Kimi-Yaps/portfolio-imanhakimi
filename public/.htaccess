@@ -1,5 +1,32 @@
 <IfModule mod_mime.c>
   AddType image/svg+xml .svg .svgz
+  AddType text/xml .xml
+  AddType model/gltf-binary .glb
+  AddType font/woff2 .woff2
+</IfModule>
+
+# ==============================================================================
+# PERFORMANCE: GZIP COMPRESSION (Core Web Vitals / TTFB optimization)
+# ==============================================================================
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json image/svg+xml font/woff2
+</IfModule>
+
+# ==============================================================================
+# PERFORMANCE: BROWSER CACHING (mod_expires)
+# ==============================================================================
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 2 days"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType model/gltf-binary "access plus 1 year"
 </IfModule>
 
 # ==============================================================================
@@ -34,18 +61,21 @@
   Deny from all
 </FilesMatch>
 
+# ==============================================================================
+# ROUTE REWRITES (Vue HTML5 History Mode + Pre-rendered static pages)
+# ==============================================================================
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  
-  # Redirect www to non-www canonical URL
-  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-  RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 
   # Map any /icons/ requests to /tech-icons/ to bypass Apache Alias
   RewriteRule ^icons/(.*)$ /tech-icons/$1 [L]
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Allow direct access to existing files & directories (including prerendered /projects/index.html)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Route all other requests to SPA root fallback
   RewriteRule . /index.html [L]
 </IfModule>

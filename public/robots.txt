@@ -1,0 +1,11 @@
+# robots.txt for https://imanhakimi.com
+User-agent: *
+Allow: /
+
+# Disallow private administrative & backend endpoints
+Disallow: /admin
+Disallow: /api/
+Disallow: /database/
+
+# Sitemap location
+Sitemap: https://imanhakimi.com/sitemap.xml

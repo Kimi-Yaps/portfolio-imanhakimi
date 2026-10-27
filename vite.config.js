@@ -11,6 +11,24 @@ export default defineConfig({
   ],
   build: {
     sourcemap: false, // Prevents source code leakage in production builds (Zeriflow / OWASP)
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) {
+            return 'vendor-three'
+          }
+          if (id.includes('node_modules/@tresjs')) {
+            return 'vendor-tres'
+          }
+          if (id.includes('node_modules/gsap')) {
+            return 'vendor-gsap'
+          }
+          if (id.includes('node_modules/vue') || id.includes('node_modules/vue-router')) {
+            return 'vendor-vue'
+          }
+        }
+      }
+    }
   },
 })
 

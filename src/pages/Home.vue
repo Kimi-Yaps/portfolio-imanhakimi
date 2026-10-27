@@ -81,31 +81,28 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <!-- Bottom-Left: Menu with Arrow Links -->
-            <div class="left-arrow-menu">
-                <button class="nav-arrow-link" @click="openSection('about')">
+            <!-- Bottom-Left: Menu with Crawlable Arrow Links -->
+            <nav class="left-arrow-menu" aria-label="Portfolio navigation">
+                <a href="/about" class="nav-arrow-link" @click.prevent="openSection('about')">
                     → ABOUT_ME
-                </button>
-                <button class="nav-arrow-link" @click="openSection('projects')">
+                </a>
+                <a href="/projects" class="nav-arrow-link" @click.prevent="openSection('projects')">
                     → MY_WORK
-                </button>
-                <button class="nav-arrow-link" @click="openSection('experience')">
+                </a>
+                <a href="#experience" class="nav-arrow-link" @click.prevent="openSection('experience')">
                     → EXPERIENCE
-                </button>
-                <button class="nav-arrow-link" @click="openSection('skills')">
+                </a>
+                <a href="#skills" class="nav-arrow-link" @click.prevent="openSection('skills')">
                     → SKILLS
-                </button>
-                <button class="nav-arrow-link" @click="openSection('contact')">
+                </a>
+                <a href="#contact" class="nav-arrow-link" @click.prevent="openSection('contact')">
                     → CONTACT
-                </button>
-            </div>
+                </a>
+            </nav>
 
             <!-- Far-Right: Vertical Sidebar Rail (Mobile & Desktop visible) -->
             <aside class="right-rail">
-                <a
-                    :href="'mailto:' + profile.email"
-                    class="feedback-tab"
-                >
+                <a :href="'mailto:' + profile.email" class="feedback-tab">
                     HIRE ME ↗
                 </a>
 
@@ -155,11 +152,7 @@ onMounted(async () => {
                                 <!-- Profile Picture Card -->
                                 <div class="pfp-terminal-card">
                                     <div class="pfp-border">
-                                        <img
-                                            src="/ImanPFP.png"
-                                            alt="Muhammad Iman Hakimi"
-                                            class="pfp-img"
-                                        />
+                                        <img src="/ImanPFP.png" alt="Muhammad Iman Hakimi" class="pfp-img" />
                                     </div>
                                     <div class="pfp-status">
                                         <span class="tape-black">{{ profile.status_badge }}</span>
@@ -193,7 +186,8 @@ onMounted(async () => {
                                         <h2 class="panel-heading">/// CERTIFICATIONS</h2>
                                         <div v-for="ct in certifications" :key="ct.id" class="mono-entry">
                                             <div class="entry-title">{{ ct.title }}</div>
-                                            <div class="entry-sub"><span class="tape-black">{{ ct.subtitle }}</span></div>
+                                            <div class="entry-sub"><span class="tape-black">{{ ct.subtitle }}</span>
+                                            </div>
                                             <div v-if="ct.description" class="entry-desc">
                                                 {{ ct.description }}
                                             </div>
@@ -207,12 +201,8 @@ onMounted(async () => {
                         <div v-if="activeSection === 'projects'" class="section-content">
                             <h2 class="panel-heading">/// FEATURED_PROJECTS_&_SYSTEMS</h2>
                             <div class="terminal-projects-grid">
-                                <article
-                                    v-for="p in projects"
-                                    :key="p.id"
-                                    class="terminal-card"
-                                    :class="{ highlighted: selectedProject === p.id }"
-                                >
+                                <article v-for="p in projects" :key="p.id" class="terminal-card"
+                                    :class="{ highlighted: selectedProject === p.id }">
                                     <div class="card-bar">
                                         <span class="tape-red">{{ p.badge }}</span>
                                         <span class="card-id">#{{ p.id }}</span>
@@ -242,11 +232,7 @@ onMounted(async () => {
                         <div v-if="activeSection === 'experience'" class="section-content">
                             <h2 class="panel-heading">/// WORK_HISTORY_&_TRACK_RECORD</h2>
                             <div class="experience-list">
-                                <div
-                                    v-for="exp in experiences"
-                                    :key="exp.id"
-                                    class="experience-block"
-                                >
+                                <div v-for="exp in experiences" :key="exp.id" class="experience-block">
                                     <div class="exp-header">
                                         <span :class="exp.tag_color === 'black' ? 'tape-black' : 'tape-red'">
                                             {{ exp.period }}
@@ -269,7 +255,8 @@ onMounted(async () => {
                                     <div class="tape-red">FRONTEND DEVELOPMENT</div>
                                     <div class="tag-cloud">
                                         <span v-for="skill in skills.frontend" :key="skill.id">
-                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name" class="tech-icon" />
+                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name"
+                                                class="tech-icon" />
                                             {{ skill.name }}
                                         </span>
                                     </div>
@@ -279,7 +266,8 @@ onMounted(async () => {
                                     <div class="tape-black">BACKEND & DATABASES</div>
                                     <div class="tag-cloud">
                                         <span v-for="skill in skills.backend" :key="skill.id">
-                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name" class="tech-icon" />
+                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name"
+                                                class="tech-icon" />
                                             {{ skill.name }}
                                         </span>
                                     </div>
@@ -289,7 +277,8 @@ onMounted(async () => {
                                     <div class="tape-red">CLOUD & DEVOPS</div>
                                     <div class="tag-cloud">
                                         <span v-for="skill in skills.cloud" :key="skill.id">
-                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name" class="tech-icon" />
+                                            <img :src="getTechIcon(skill.icon || skill.name)" :alt="skill.name"
+                                                class="tech-icon" />
                                             {{ skill.name }}
                                         </span>
                                     </div>
@@ -304,10 +293,8 @@ onMounted(async () => {
                                 <div class="contact-box">
                                     <div class="tape-red">DIRECT EMAIL</div>
                                     <div class="contact-value">{{ profile.email }}</div>
-                                    <button
-                                        class="bracket-btn bordered"
-                                        @click="copyToClipboard(profile.email, 'email')"
-                                    >
+                                    <button class="bracket-btn bordered"
+                                        @click="copyToClipboard(profile.email, 'email')">
                                         [ {{ copiedField === 'email' ? '✓ COPIED' : 'COPY EMAIL' }} ]
                                     </button>
                                 </div>
@@ -315,13 +302,10 @@ onMounted(async () => {
 
                                 <div class="contact-box">
                                     <div class="tape-red">LINKEDIN</div>
-                                    <div class="contact-value">{{ profile.linkedin_url.replace('https://www.', '').replace('https://', '') }}</div>
-                                    <a
-                                        :href="profile.linkedin_url"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="bracket-btn bordered"
-                                    >
+                                    <div class="contact-value">{{ profile.linkedin_url.replace('https://www.',
+                                        '').replace('https://', '') }}</div>
+                                    <a :href="profile.linkedin_url" target="_blank" rel="noopener noreferrer"
+                                        class="bracket-btn bordered">
                                         [ OPEN LINKEDIN ↗ ]
                                     </a>
                                 </div>
@@ -989,24 +973,29 @@ a {
     .hud-container {
         padding: clamp(50px, 6.5vh, 60px) 38px clamp(8px, 1.5vh, 16px) clamp(10px, 2.5vw, 16px);
     }
+
     .right-rail {
         display: flex;
         width: 30px;
         top: 44px;
         padding: 10px 0;
     }
+
     .feedback-tab {
         font-size: 0.62rem;
         padding: 6px 2px;
         letter-spacing: 0.05em;
     }
+
     .pixel-dino-btn {
         padding: 2px;
     }
+
     .dino-star-img {
         width: 17px;
         height: 17px;
     }
+
     .bottom-hud-bar {
         margin-right: 0;
     }
@@ -1016,12 +1005,14 @@ a {
     .about-grid {
         grid-template-columns: 1fr;
     }
+
     .pfp-terminal-card {
         flex-direction: row;
         align-items: center;
         gap: 14px;
         max-width: 100%;
     }
+
     .pfp-border {
         max-width: 110px;
         flex-shrink: 0;
@@ -1033,12 +1024,15 @@ a {
         flex-direction: column;
         align-items: flex-start;
     }
+
     .pfp-border {
         max-width: 140px;
     }
+
     .bottom-center-nav .copyright-text {
         display: none;
     }
+
     .terminal-window {
         max-height: 96dvh;
     }

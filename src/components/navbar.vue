@@ -16,12 +16,31 @@ const navigateToRoute = (path: string) => {
 
 <template>
     <header class="navbar-wrapper">
-        <nav class="navigation">
+        <nav class="navigation" aria-label="Main Navigation">
             <!-- Brand Link / Logo -->
             <a href="/" class="bracket-btn brand-link" @click.prevent="navigateToRoute('/')">
                 <img src="/Star.svg" alt="Star Logo" class="brand-star" />
                 <span class="brand-text">[ IMANHAKIMI.COM ]</span>
             </a>
+
+            <!-- Navigation Links with crawlable anchor tags -->
+            <div class="nav-links">
+                <a href="/projects" class="bracket-btn nav-link-item" :class="{ active: route.path === '/projects' }" @click.prevent="navigateToRoute('/projects')">
+                    [ PROJECTS ]
+                </a>
+                <a href="/about" class="bracket-btn nav-link-item hide-mobile" :class="{ active: route.path === '/about' }" @click.prevent="navigateToRoute('/about')">
+                    [ ABOUT ]
+                </a>
+                <a href="/gallery" class="bracket-btn nav-link-item hide-mobile" :class="{ active: route.path === '/gallery' }" @click.prevent="navigateToRoute('/gallery')">
+                    [ GALLERY ]
+                </a>
+                <a href="/blog" class="bracket-btn nav-link-item hide-mobile" :class="{ active: route.path === '/blog' }" @click.prevent="navigateToRoute('/blog')">
+                    [ BLOG ]
+                </a>
+                <a href="mailto:hakimiiman342ab@gmail.com" class="bracket-btn highlight-link">
+                    [ HIRE ME ↗ ]
+                </a>
+            </div>
         </nav>
     </header>
 </template>
@@ -74,6 +93,31 @@ const navigateToRoute = (path: string) => {
 .brand-text {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1.5vw, 12px);
+}
+
+.nav-link-item {
+    font-size: clamp(0.72rem, 2vw, 0.82rem);
+    font-weight: 700;
+    text-decoration: none;
+    padding: 4px clamp(6px, 1vw, 10px);
+    white-space: nowrap;
+}
+
+.nav-link-item.active {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
 }
 
 .highlight-link {

@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender.js",
+    "prerender": "node scripts/prerender.js",
     "preview": "vite preview",
-    "pack": "vite build && cd dist && tar -a -cf ../site-upload.zip * && cd .."
+    "pack": "npm run build && cd dist && tar -a -cf ../site-upload.zip * && cd .."
   },
   "dependencies": {
     "@tresjs/core": "^5.10.0",
